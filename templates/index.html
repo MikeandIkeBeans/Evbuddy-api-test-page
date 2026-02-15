@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Buddy - Powering the Future</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom font tweaks if needed */
+        body { font-family: sans-serif; }
+    </style>
+</head>
+<body class="bg-neutral-900 text-white selection:bg-green-500 selection:text-black">
+
+    <nav class="fixed w-full z-50 bg-neutral-900/90 backdrop-blur-md border-b border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="zap" class="text-green-500 fill-current"></i>
+                    <span class="text-2xl font-bold tracking-tighter text-white">ev buddy.</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="hover:text-green-400 transition text-sm font-medium">Products</a>
+                    <a href="#" class="hover:text-green-400 transition text-sm font-medium">Company</a>
+                    <a href="#" class="bg-green-500 text-black px-4 py-2 rounded-full font-bold hover:bg-green-400 transition text-sm">
+                        Pre-Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-40 pb-20 px-4 max-w-7xl mx-auto text-center">
+        <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6">
+            Powering the Future of <br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-500">
+                EV Charging Infrastructure
+            </span>
+        </h1>
+        <p class="text-xl text-neutral-400 max-w-2xl mx-auto mb-10">
+            EV Buddy is revolutionizing how EVs stay on the move. We tackle range anxiety
+            and build a scalable, mobile charging ecosystem.
+        </p>
+        <div class="flex justify-center gap-4">
+            <button class="bg-green-500 text-black px-8 py-3 rounded-full font-bold text-lg hover:bg-green-400 transition flex items-center gap-2">
+                Get Started <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+            <button class="border border-neutral-600 px-8 py-3 rounded-full font-bold text-lg hover:border-green-400 hover:text-green-400 transition">
+                View Map
+            </button>
+        </div>
+    </section>
+
+    <section class="py-20 bg-neutral-800/30">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+            {% for feature in features %}
+            <div class="p-8 rounded-2xl bg-neutral-900 border border-neutral-800 hover:border-green-500/50 transition duration-300">
+                <div class="mb-4">
+                    <i data-lucide="{{ feature.icon }}" class="w-8 h-8 text-green-400"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">{{ feature.title }}</h3>
+                <p class="text-neutral-400">{{ feature.desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="py-20 max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-16 text-center">How EVChargeShare Works</h2>
+        <div class="relative flex flex-col md:flex-row justify-between items-center max-w-4xl mx-auto gap-8 md:gap-0">
+            <div class="hidden md:block absolute top-6 left-0 w-full h-1 bg-neutral-800 -z-10"></div>
+            
+            {% for item in steps %}
+            <div class="flex flex-col items-center bg-neutral-900 px-4">
+                <div class="w-12 h-12 rounded-full bg-neutral-800 border-2 border-green-500 flex items-center justify-center font-bold mb-4 text-white">
+                    {{ item.step }}
+                </div>
+                <span class="text-sm font-medium text-neutral-300">{{ item.title }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="py-20 bg-neutral-900 border-y border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
+            <div>
+                <div class="text-green-400 font-mono mb-2 tracking-widest text-sm">HARDWARE</div>
+                <h2 class="text-4xl font-bold mb-6">EV Buddy Cluster</h2>
+                <p class="text-neutral-400 mb-6 leading-relaxed">
+                    A dynamic, future-ready charging hub built for scale, performance, and profitability. 
+                    Designed for high-demand environments.
+                </p>
+                <ul class="space-y-4">
+                    {% for spec in specs %}
+                    <li class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-neutral-200">{{ spec }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="h-80 bg-neutral-800/50 rounded-3xl border border-neutral-700 flex items-center justify-center relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-tr from-green-500/10 to-transparent group-hover:from-green-500/20 transition"></div>
+                <span class="text-neutral-500 font-mono animate-pulse">[ 3D Cluster Model Placeholder ]</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-green-500/5 border-b border-neutral-800">
+        <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-around text-center gap-8">
+            <div>
+                <div class="text-5xl font-bold text-green-400 mb-2">$66B</div>
+                <div class="text-xs uppercase tracking-widest text-neutral-400">Projected Market</div>
+            </div>
+            <div>
+                <div class="text-5xl font-bold text-white mb-2">23%</div>
+                <div class="text-xs uppercase tracking-widest text-neutral-400">Efficiency Boost</div>
+            </div>
+            <div>
+                <div class="text-5xl font-bold text-cyan-400 mb-2">3</div>
+                <div class="text-xs uppercase tracking-widest text-neutral-400">Pilot Markets</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-20 text-center px-4">
+        <h2 class="text-3xl font-bold mb-8">Ready to join the network?</h2>
+        <div class="max-w-md mx-auto flex gap-2">
+            <input 
+                type="email" 
+                placeholder="Enter your email" 
+                class="flex-1 bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-3 focus:outline-none focus:border-green-500 text-white placeholder-neutral-500"
+            />
+            <button class="bg-green-500 text-black font-bold px-6 py-3 rounded-lg hover:bg-green-400 transition">
+                Subscribe
+            </button>
+        </div>
+        <p class="text-neutral-600 mt-12 text-sm">© 2026 EV Buddy. Based on provided documentation.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+      // Fetch chargers and populate dropdown on page load — try remote API first (no local server needed), then fallback to local proxy, then static
+      document.addEventListener('DOMContentLoaded', async function() {
+        const select = document.getElementById('charger-select');
+        const siteSelect = document.getElementById('site-select');
+        if (!select || !siteSelect) return;
+
+        const ocppLocalUrl = '/v1/charge-points';
+        const ocppRemoteUrl = 'http://20.119.73.31:9029/api/charge-points';
+        const chargersRemoteUrl = 'http://20.119.73.31:9017/chargers/chargers/status/available';
+        const chargersLocalUrl = '/v1/chargers?status=available';
+        const hostSitesLocalUrl = '/v1/host-sites';
+
+        window.__sitesCache = [];
+
+        function populateFromChargePoints(data) {
+          // data may be {data: [...] } or an array
+          const cps = Array.isArray(data) ? data : (data.data || []);
+          select.innerHTML = '';
+          cps.forEach(c => {
+            const id = c.charge_point_id || c.ocpp_identity || c.id || c.name;
+            if (id) {
+              const opt = document.createElement('option');
+              opt.value = id;
+              opt.textContent = `${id}${c.online === false ? ' • offline' : (c.online === true ? ' • online' : '')}${c.charge_point_model ? ' — ' + c.charge_point_model : ''}`;
+              select.appendChild(opt);
+            }
+          });
+        }
+
+        function normalizeSites(data) {
+          const raw = Array.isArray(data) ? data : (data.data || data.value || []);
+          return raw.map(s => {
+            const id = s.id ?? s.site_id ?? s.siteId ?? s.host_site_id ?? s.hostSiteId ?? s.property_id ?? s.propertyId ?? s.code ?? s.siteCode;
+            const hostId = s.host_id ?? s.hostId ?? s.host_owner_id ?? s.owner_id ?? s.ownerId ?? s.operator_id ?? s.operatorId;
+            const name = s.name || s.site_name || s.siteName || s.property_name || s.propertyName || s.hotel_name || s.hotelName || s.code || `Site ${id ?? '—'}`;
+            return { id: id ?? 'HTL-DEMO-001', name, hostId };
+          }).filter(s => s.id !== undefined && s.id !== null);
+        }
+
+        function populateSites(sites) {
+          siteSelect.innerHTML = '';
+          sites.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = s.name;
+            siteSelect.appendChild(opt);
+          });
+        }
+
+        function populateFromData(data) {
+          const chargers = Array.isArray(data) ? data : (data.data || data.chargers || []);
+          select.innerHTML = '';
+          chargers.forEach(c => {
+            const id = c.ocpp_identity || c.charge_point_id || c.id || c.name;
+            if (id) {
+              const opt = document.createElement('option');
+              opt.value = id;
+              opt.textContent = `${id}${c.status ? ' • ' + c.status : ''}`;
+              select.appendChild(opt);
+            }
+          });
+        }
+
+        async function tryFetch(url, options) {
+          try {
+            const res = await fetch(url, options);
+            if (res.ok) return res.json();
+          } catch (err) {
+            console.warn('fetch failed', url, err.message);
+          }
+          return null;
+        }
+
+        async function loadChargersForSite(siteId) {
+          if (!siteId) return;
+
+          const isNumeric = String(siteId).match(/^\d+$/);
+          const siteChargersUrl = isNumeric ? `/v1/chargers/site/${siteId}` : `/v1/chargers?siteId=${encodeURIComponent(siteId)}`;
+
+          let data = await tryFetch(siteChargersUrl);
+          if (data) { populateFromData(data); return; }
+
+          // 1) Try local OCPP proxy
+          data = await tryFetch(ocppLocalUrl);
+          if (data) { populateFromChargePoints(data); return; }
+
+          // 2) Try remote OCPP endpoint (may be CORS-blocked)
+          data = await tryFetch(ocppRemoteUrl, { mode: 'cors' });
+          if (data) { populateFromChargePoints(data); return; }
+
+          // 3) Try remote chargers metadata (status=available)
+          data = await tryFetch(chargersRemoteUrl, { mode: 'cors' });
+          if (data) { populateFromData(data); return; }
+
+          // 4) Try local chargers proxy
+          data = await tryFetch(chargersLocalUrl);
+          if (data) { populateFromData(data); return; }
+
+          // Final fallback: static options
+          select.innerHTML = '<option value="atl001">atl001</option><option value="1010933">1010933</option><option value="ASEO0723">ASEO0723</option>';
+        }
+
+        // Load host sites
+        let data = await tryFetch(hostSitesLocalUrl);
+        if (data) {
+          window.__sitesCache = normalizeSites(data);
+        }
+
+        if (!window.__sitesCache.length) {
+          window.__sitesCache = [{ id: 'HTL-DEMO-001', name: 'Demo Hotel', hostId: 1030 }];
+        }
+
+        populateSites(window.__sitesCache);
+        await loadChargersForSite(siteSelect.value);
+
+        siteSelect.addEventListener('change', async () => {
+          await loadChargersForSite(siteSelect.value);
+        });
+      });
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Buddy - Guest Charging</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(180deg, #4db6ac 0%, #26a69a 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 18px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: #26a69a;
+    }
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #26a69a; color: #fff; }
+    .btn-primary:hover { background: #00897b; }
+    .btn-primary:disabled { background: #b2dfdb; cursor: not-allowed; }
+    .btn-danger { background: #e53935; color: #fff; }
+    .btn-danger:hover { background: #c62828; }
+    .btn-secondary { background: #f5f5f5; color: #333; }
+    
+    .match-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      border-left: 5px solid #26a69a;
+    }
+    .match-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #26a69a;
+      margin-bottom: 8px;
+    }
+    .match-details {
+      color: #333;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .match-stay {
+      color: #666;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    
+    .session-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+    .session-status {
+      font-size: 14px;
+      color: #26a69a;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .session-energy {
+      font-size: 48px;
+      font-weight: 700;
+      color: #333;
+    }
+    .session-energy span {
+      font-size: 20px;
+      color: #666;
+    }
+    .session-stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 24px 0;
+      padding: 16px 0;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+    }
+    .stat { text-align: center; }
+    .stat-value { font-size: 20px; font-weight: 600; color: #333; }
+    .stat-label { font-size: 12px; color: #999; margin-top: 4px; }
+    
+    .receipt-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .receipt-header {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed #ddd;
+      margin-bottom: 16px;
+    }
+    .receipt-check {
+      width: 60px;
+      height: 60px;
+      background: #e8f5e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 28px;
+    }
+    .receipt-title { font-size: 20px; font-weight: 600; color: #333; }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 15px;
+    }
+    .receipt-row.total {
+      border-top: 1px solid #eee;
+      margin-top: 8px;
+      padding-top: 12px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    .error-banner {
+      background: #ffebee;
+      color: #c62828;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .hidden { display: none; }
+    
+    .debug-panel {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 20px;
+      color: #fff;
+      font-size: 12px;
+    }
+    .debug-panel h4 {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .debug-log {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .log-entry { margin: 4px 0; }
+    .log-ok { color: #a5d6a7; }
+    .log-err { color: #ef9a9a; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 id="screen-title">⚡ Find Guest</h1>
+      <p id="screen-subtitle">Search by room + last name</p>
+    </div>
+    
+    <!-- Screen 1: Auth Form -->
+    <div id="screen-auth" class="card">
+      <div class="form-group">
+        <input type="text" id="room-input" placeholder="Room number" value="">
+      </div>
+      <div class="form-group">
+        <input type="text" id="name-input" placeholder="Last name" value="">
+      </div>
+      <div class="form-group">
+        <label for="site-select" style="font-size:13px; color:#555; margin-bottom:4px;">Host Site</label>
+        <select id="site-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;"></select>
+      </div>
+      <div class="form-group">
+        <label for="charger-select" style="font-size:13px; color:#555; margin-bottom:4px;">Charger</label>
+        <select id="charger-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ccc;">
+          <option value="atl001">atl001</option>
+          <option value="1010933">1010933</option>
+          <option value="ASEO0723">ASEO0723</option>
+        </select>
+      </div>
+      <div id="error-banner" class="error-banner hidden"></div>
+      <button id="search-btn" class="btn btn-primary" onclick="authenticateRoom()">Search</button>
+    </div>
+    
+    <!-- Screen 2: Match Result -->
+    <div id="screen-match" class="match-card hidden">
+      <div class="match-title">Match</div>
+      <div class="match-details">
+        <div>ID: <span id="match-id"></span> • Host: <span id="match-host"></span> • Site: <span id="match-site"></span></div>
+        <div>Room <span id="match-room"></span> • <span id="match-name"></span></div>
+      </div>
+      <div class="match-stay">
+        Stay: <span id="match-checkin"></span> → <span id="match-checkout"></span>
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="startCharging()">Start Charging →</button>
+      <button class="btn btn-secondary" style="margin-top:8px;" onclick="resetForm()">Search Again</button>
+    </div>
+    
+    <!-- Screen 3: Charging Session -->
+    <div id="screen-session" class="session-card hidden">
+      <div class="session-status" id="session-status">⚡ Charging</div>
+      <div id="real-charger-status" style="font-size: 12px; color: #888; margin-bottom: 8px;"></div>
+      <div class="session-energy"><span id="session-energy">0.0</span> <span>kWh</span></div>
+      <div class="session-stats">
+        <div class="stat">
+          <div class="stat-value" id="session-power">7.2 kW</div>
+          <div class="stat-label">Power</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="session-time">0:00</div>
+          <div class="stat-label">Duration</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="session-cost">$0.00</div>
+          <div class="stat-label">Cost</div>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="stopCharging()">Stop Charging</button>
+    </div>
+    
+    <!-- Screen 4: Receipt -->
+    <div id="screen-receipt" class="receipt-card hidden">
+      <div class="receipt-header">
+        <div class="receipt-check">✓</div>
+        <div class="receipt-title">Charging Complete</div>
+      </div>
+      <div class="receipt-row">
+        <span>Energy</span>
+        <span id="receipt-energy">0.0 kWh</span>
+      </div>
+      <div class="receipt-row">
+        <span>Duration</span>
+        <span id="receipt-time">0:00</span>
+      </div>
+      <div class="receipt-row">
+        <span>Rate</span>
+        <span>$0.38/kWh</span>
+      </div>
+      <div class="receipt-row total">
+        <span>Total</span>
+        <span id="receipt-total">$0.00</span>
+      </div>
+      <div style="margin-top:16px; text-align:center; color:#666; font-size:13px;">
+        Charged to Room <span id="receipt-room"></span>
+      </div>
+      <button class="btn btn-primary" style="margin-top:20px;" onclick="resetForm()">Done</button>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+      <h4>📝 API Log</h4>
+      <div id="debug-log" class="debug-log">
+        <div class="log-entry">Ready...</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = '';
+    let currentToken = null;
+    let currentSessionId = null;
+    let sessionInterval = null;
+    let sessionStartTime = null;
+    
+    function log(msg, isError = false) {
+      const logEl = document.getElementById('debug-log');
+      const time = new Date().toLocaleTimeString();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + (isError ? 'log-err' : 'log-ok');
+      entry.textContent = `[${time}] ${msg}`;
+      logEl.insertBefore(entry, logEl.firstChild);
+    }
+    
+    function showScreen(name) {
+      ['screen-auth', 'screen-match', 'screen-session', 'screen-receipt'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('screen-' + name).classList.remove('hidden');
+      
+      const titles = {
+        auth: ['⚡ Find Guest', 'Search by room + last name'],
+        match: ['⚡ Guest Found', 'Ready to charge'],
+        session: ['⚡ Charging', 'Session in progress'],
+        receipt: ['⚡ Complete', 'Thanks for charging!']
+      };
+      document.getElementById('screen-title').textContent = titles[name][0];
+      document.getElementById('screen-subtitle').textContent = titles[name][1];
+    }
+    
+    function showError(msg) {
+      const banner = document.getElementById('error-banner');
+      banner.textContent = msg;
+      banner.classList.remove('hidden');
+    }
+    
+    function hideError() {
+      document.getElementById('error-banner').classList.add('hidden');
+    }
+    
+    async function authenticateRoom() {
+      const room = document.getElementById('room-input').value.trim();
+      const name = document.getElementById('name-input').value.trim();
+      const btn = document.getElementById('search-btn');
+      
+      if (!room || !name) {
+        showError('Please enter room and name');
+        return;
+      }
+      
+      hideError();
+      btn.disabled = true;
+      btn.textContent = 'Searching...';
+      
+      log(`POST /v1/auth/hotel {room: ${room}, name: ${name}}`);
+      
+      try {
+        const chargerId = document.getElementById('charger-select').value;
+        const siteId = document.getElementById('site-select').value;
+        const selectedSite = (() => {
+          const options = document.getElementById('site-select').options;
+          for (let i = 0; i < options.length; i++) {
+            if (options[i].value === siteId) return options[i].textContent;
+          }
+          return null;
+        })();
+        const hostId = (window.__sitesCache || []).find(s => String(s.id) === String(siteId))?.hostId || 1030;
+        const res = await fetch(`${API_BASE}/v1/auth/hotel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            siteId,
+            chargerId,
+            roomNumber: room,
+            lastName: name,
+            hostId,
+          })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          log(`✓ Match found!`);
+          currentToken = data.accessToken;
+          
+          document.getElementById('match-id').textContent = data.guest?.reservationId || '—';
+          document.getElementById('match-host').textContent = hostId || '—';
+          document.getElementById('match-site').textContent = selectedSite || siteId;
+          document.getElementById('match-room').textContent = room;
+          document.getElementById('match-name').textContent = name;
+          document.getElementById('match-checkin').textContent = data.guest?.checkInDate || '—';
+          document.getElementById('match-checkout').textContent = data.guest?.checkOutDate || '—';
+          
+          showScreen('match');
+        } else {
+          const errorText = await res.text();
+          log(`✗ ${res.status}: ${errorText}`, true);
+          showError('Invalid entry');
+        }
+      } catch (err) {
+        log(`✗ Error: ${err.message}`, true);
+        showError('Connection failed - is server running?');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Search';
+      }
+    }
+    
+    async function startCharging() {
+      log('POST /v1/sessions (starting charge)');
+      
+      try {
+        const chargerId = document.getElementById('charger-select').value;
+        const res = await fetch(`${API_BASE}/v1/sessions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({
+            chargerId,
+            connectorId: 1,
+            limit: { type: 'NONE' }
+          })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          currentSessionId = data.sessionId;
+          sessionStartTime = Date.now();
+          log(`✓ Session started: ${currentSessionId}`);
+          
+          showScreen('session');
+          startSessionPolling();
+        } else {
+          const errText = await res.text();
+          log(`✗ Failed to start session: ${errText}`, true);
+        }
+      } catch (err) {
+        log(`✗ Error: ${err.message}`, true);
+      }
+    }
+    
+    function startSessionPolling() {
+      updateSession();
+      sessionInterval = setInterval(updateSession, 2000);
+    }
+    
+    async function updateSession() {
+      if (!currentSessionId) return;
+      
+      try {
+        const res = await fetch(`${API_BASE}/v1/sessions/${currentSessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          
+          document.getElementById('session-energy').textContent = data.energyKwh?.toFixed(1) || data.energyDeliveredKwh?.toFixed(1) || '0.0';
+          document.getElementById('session-cost').textContent = '$' + (data.cost?.toFixed(2) || '0.00');
+          document.getElementById('session-power').textContent = (data.powerKw?.toFixed(1) || '7.2') + ' kW';
+          
+          // Update session status display
+          const statusEl = document.getElementById('session-status');
+          if (data.status === 'CHARGING') {
+            statusEl.textContent = '⚡ Charging';
+            statusEl.style.color = '#10b981';
+          } else if (data.status === 'STARTING' || data.status === 'PREPARING') {
+            statusEl.textContent = '🔌 Preparing...';
+            statusEl.style.color = '#f59e0b';
+          } else if (data.status === 'STOPPING') {
+            statusEl.textContent = '⏹ Stopping...';
+            statusEl.style.color = '#f59e0b';
+          } else if (data.status === 'PAUSED') {
+            statusEl.textContent = '⏸ Paused';
+            statusEl.style.color = '#6b7280';
+          }
+          
+          // Show real charger status if available
+          const realStatusEl = document.getElementById('real-charger-status');
+          if (data.realCharger) {
+            const rc = data.realCharger;
+            let statusColor = '#888';
+            if (rc.status === 'Charging') statusColor = '#10b981';
+            else if (rc.status === 'Preparing') statusColor = '#f59e0b';
+            else if (rc.status === 'Available') statusColor = '#3b82f6';
+            else if (rc.status === 'Faulted') statusColor = '#ef4444';
+            
+            realStatusEl.innerHTML = `🔌 Real Charger: <span style="color: ${statusColor}; font-weight: 600;">${rc.status}</span>` +
+              (rc.transactionId ? ` (txn: ${rc.transactionId})` : '');
+          } else {
+            realStatusEl.textContent = '🎭 Simulated mode';
+          }
+          
+          // Duration
+          const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+          const mins = Math.floor(elapsed / 60);
+          const secs = elapsed % 60;
+          document.getElementById('session-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+          
+          if (data.status === 'COMPLETE' || data.status === 'COMPLETED') {
+            showReceipt(data);
+          }
+        }
+      } catch (err) {
+        // Ignore polling errors
+      }
+    }
+    
+    async function stopCharging() {
+      log(`POST /v1/sessions/${currentSessionId}/stop`);
+      clearInterval(sessionInterval);
+      
+      try {
+        const res = await fetch(`${API_BASE}/v1/sessions/${currentSessionId}/stop`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          log('✓ Session stopped');
+          showReceipt(data);
+        }
+      } catch (err) {
+        log(`✗ Error: ${err.message}`, true);
+      }
+    }
+    
+    function showReceipt(data) {
+      clearInterval(sessionInterval);
+      
+      const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+      const mins = Math.floor(elapsed / 60);
+      const secs = elapsed % 60;
+      
+      document.getElementById('receipt-energy').textContent = (data.energyDeliveredKwh?.toFixed(1) || data.energyKwh?.toFixed(1) || '0.0') + ' kWh';
+      document.getElementById('receipt-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      document.getElementById('receipt-total').textContent = '$' + (data.cost?.toFixed(2) || '0.00');
+      document.getElementById('receipt-room').textContent = document.getElementById('match-room').textContent;
+      
+      showScreen('receipt');
+    }
+    
+    function resetForm() {
+      clearInterval(sessionInterval);
+      currentToken = null;
+      currentSessionId = null;
+      sessionStartTime = null;
+      hideError();
+      showScreen('auth');
+    }
+    
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !document.getElementById('screen-auth').classList.contains('hidden')) {
+        authenticateRoom();
+      }
+    });
+  </script>
+</body>
+</html>

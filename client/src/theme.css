@@ -1,0 +1,192 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap");
+
+:root {
+  color-scheme: dark;
+  --bg-void: #05070d;
+  --bg-deep: #090d18;
+  --surface-strong: linear-gradient(140deg, rgba(18, 26, 44, 0.86), rgba(12, 18, 30, 0.76));
+  --surface-card: linear-gradient(165deg, rgba(17, 24, 39, 0.85), rgba(11, 16, 28, 0.72));
+  --line-soft: rgba(137, 161, 196, 0.2);
+  --line-focus: rgba(113, 179, 255, 0.62);
+  --text-primary: #eff4ff;
+  --text-secondary: #cad7ed;
+  --text-muted: #8f9fbb;
+  --accent-blue: #4d88ff;
+  --accent-ice: #64f0ff;
+  --accent-success: #46d6b5;
+  --accent-warn: #ffb967;
+  --accent-danger: #ff7f88;
+  --shadow-soft: 0 24px 45px rgba(3, 6, 12, 0.42);
+  --code-surface: rgba(8, 12, 22, 0.88);
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-color: rgba(140, 169, 212, 0.5) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(110, 152, 219, 0.65), rgba(84, 200, 222, 0.65));
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", "SF Pro Text", "Avenir Next", sans-serif;
+  color: var(--text-primary);
+  background:
+    radial-gradient(1200px 700px at -10% -20%, rgba(96, 146, 255, 0.35), transparent 55%),
+    radial-gradient(900px 540px at 110% -10%, rgba(84, 243, 255, 0.2), transparent 48%),
+    linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-void) 58%, #04060b 100%);
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(159, 198, 255, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 6%, rgba(122, 255, 244, 0.1), transparent 30%);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.28;
+}
+
+.dashboard-shell {
+  animation: shellReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dashboard-tab:hover {
+  color: #e8f3ff !important;
+  background: rgba(93, 146, 255, 0.18) !important;
+  border-color: rgba(114, 168, 255, 0.34) !important;
+  transform: translateY(-1px);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.18s;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--line-focus) !important;
+  box-shadow: 0 0 0 3px rgba(92, 158, 255, 0.2);
+  background-color: rgba(16, 22, 36, 0.9) !important;
+}
+
+table tbody tr:hover {
+  background: rgba(82, 128, 204, 0.08);
+}
+
+@media (max-width: 900px) {
+  body::after {
+    opacity: 0.16;
+    background-size: 48px 48px;
+  }
+
+  .dashboard-header {
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+
+  .dashboard-tabs {
+    padding: 6px !important;
+    border-radius: 14px !important;
+  }
+
+  .dashboard-tab {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 140px !important;
+    text-align: center;
+  }
+}
+
+@keyframes shellReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

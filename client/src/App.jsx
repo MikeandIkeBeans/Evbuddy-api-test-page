@@ -25,21 +25,26 @@ export default function App() {
   const ActiveTabComponent = activeTabConfig.component;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <div style={styles.logo}>EV Buddy</div>
-        <div style={{ color: "#666", fontSize: 14 }}>API Dashboard</div>
+    <div style={styles.container} className="dashboard-shell">
+      <div style={styles.header} className="dashboard-header">
+        <div style={styles.headerCopy}>
+          <div style={styles.logo}>EV Buddy</div>
+          <div style={styles.subtitle}>Unified API Command Center</div>
+        </div>
+        <div style={styles.headerBadge}>Silicon-grade dashboard</div>
       </div>
 
-      <div style={styles.tabs}>
+      <div style={styles.tabs} className="dashboard-tabs">
         {TABS.map((tab) => (
           <button
             key={tab.id}
+            className={`dashboard-tab${activeTab === tab.id ? " is-active" : ""}`}
             style={{
               ...styles.tab,
               ...(activeTab === tab.id ? styles.tabActive : {}),
             }}
             onClick={() => setActiveTab(tab.id)}
+            aria-pressed={activeTab === tab.id}
           >
             {tab.label}
           </button>

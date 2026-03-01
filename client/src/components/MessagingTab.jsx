@@ -897,7 +897,7 @@ function StatusEventsPanel({ threadId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ newStatus: "OPEN", changedByAccountId: "", reason: "" });
+  const [form, setForm] = useState({ toStatus: "OPEN", actorAccountId: "", eventReason: "" });
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -917,16 +917,16 @@ function StatusEventsPanel({ threadId }) {
   }, [fetchEvents]);
 
   const addEvent = async () => {
-    if (!form.changedByAccountId) return;
+    if (!form.actorAccountId) return;
     const payload = {
-      newStatus: form.newStatus,
-      changedByAccountId: Number(form.changedByAccountId),
-      reason: form.reason || undefined,
+      toStatus: form.toStatus,
+      actorAccountId: Number(form.actorAccountId),
+      eventReason: form.eventReason || undefined,
     };
     const res = await apiCall("POST", `/api/messaging/threads/${threadId}/status-events`, payload);
     if (res.ok) {
       setShowAdd(false);
-      setForm({ newStatus: "OPEN", changedByAccountId: form.changedByAccountId, reason: "" });
+      setForm({ toStatus: "OPEN", actorAccountId: form.actorAccountId, eventReason: "" });
       fetchEvents();
     } else {
       setError(res.data?.error || res.data?.message || `Error ${res.status}`);
@@ -948,14 +948,14 @@ function StatusEventsPanel({ threadId }) {
         <div style={{ background: "#0d1117", padding: 10, borderRadius: 6, marginBottom: 10 }}>
           <div style={styles.row}>
             <Field label="New Status">
-              <Select value={form.newStatus} onChange={(v) => setForm((f) => ({ ...f, newStatus: v }))} options={STATUSES} placeholder="Select" />
+              <Select value={form.toStatus} onChange={(v) => setForm((f) => ({ ...f, toStatus: v }))} options={STATUSES} placeholder="Select" />
             </Field>
             <Field label="Account ID *">
-              <input style={styles.input} type="number" value={form.changedByAccountId} onChange={(e) => setForm((f) => ({ ...f, changedByAccountId: e.target.value }))} placeholder="e.g. 1" />
+              <input style={styles.input} type="number" value={form.actorAccountId} onChange={(e) => setForm((f) => ({ ...f, actorAccountId: e.target.value }))} placeholder="e.g. 1" />
             </Field>
           </div>
           <Field label="Reason">
-            <input style={styles.input} value={form.reason} onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))} placeholder="Optional reason" />
+            <input style={styles.input} value={form.eventReason} onChange={(e) => setForm((f) => ({ ...f, eventReason: e.target.value }))} placeholder="Optional reason" />
           </Field>
           <div style={{ display: "flex", gap: 6 }}>
             <button style={styles.button} onClick={addEvent}>Record Transition</button>
@@ -979,13 +979,13 @@ function StatusEventsPanel({ threadId }) {
               }}
             >
               <div>
-                <Badge label={ev.previousStatus || "—"} colorMap={statusColor} />
+                <Badge label={ev.fromStatus || "—"} colorMap={statusColor} />
                 <span style={{ margin: "0 6px", color: "#666" }}>→</span>
-                <Badge label={ev.newStatus} colorMap={statusColor} />
-                {ev.reason && <span style={{ fontSize: 12, color: "#888", marginLeft: 8 }}>"{ev.reason}"</span>}
+                <Badge label={ev.toStatus} colorMap={statusColor} />
+                {ev.eventReason && <span style={{ fontSize: 12, color: "#888", marginLeft: 8 }}>"{ev.eventReason}"</span>}
               </div>
               <span style={{ fontSize: 11, color: "#555" }}>
-                by #{ev.changedByAccountId} · {formatDate(ev.createdAt)}
+                by #{ev.actorAccountId} · {formatDate(ev.createdAt)}
               </span>
             </div>
           ))}
@@ -1003,7 +1003,7 @@ function TemplatesPanel() {
   const [error, setError] = useState(null);
   const [filterCat, setFilterCat] = useState("");
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ templateKey: "", category: "GENERAL", subject: "", body: "", isActive: true });
+  const [form, setForm] = useState({ templateKey: "", category: "GENERAL", title: "", body: "", isActive: true });
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [page, setPage] = useState(1);
@@ -1031,20 +1031,26 @@ function TemplatesPanel() {
   }, [fetchTemplates]);
 
   const create = async () => {
+    if (!form.templateKey.trim() || !form.title.trim()) {
+      setError("Template key and title are required");
+      return;
+    }
     const payload = {
-      templateKey: form.templateKey || undefined,
+      templateKey: form.templateKey.trim(),
       category: form.category,
-      subject: form.subject || undefined,
+      title: form.title.trim(),
       body: form.body,
       isActive: form.isActive,
     };
     const res = await apiCall("POST", "/api/messaging/templates", payload);
     if (res.ok) {
       setShowCreate(false);
-      setForm({ templateKey: "", category: "GENERAL", subject: "", body: "", isActive: true });
+      setForm({ templateKey: "", category: "GENERAL", title: "", body: "", isActive: true });
       fetchTemplates();
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const fe = res.data?.fieldErrors;
+      const msg = fe?.length ? fe.map((e) => `${e.field}: ${e.message}`).join("; ") : res.data?.message || res.data?.error || `Error ${res.status}`;
+      setError(msg);
     }
   };
 
@@ -1111,14 +1117,14 @@ function TemplatesPanel() {
         <div style={{ background: "#0d1117", padding: 12, borderRadius: 6, marginBottom: 12 }}>
           <div style={styles.row}>
             <Field label="Key">
-              <input style={styles.input} value={form.templateKey} onChange={(e) => setForm((f) => ({ ...f, templateKey: e.target.value }))} placeholder="unique-key" />
+              <input style={styles.input} value={form.templateKey} onChange={(e) => setForm((f) => ({ ...f, templateKey: e.target.value }))} placeholder="UPPERCASE_WITH_UNDERSCORES" />
             </Field>
             <Field label="Category">
               <Select value={form.category} onChange={(v) => setForm((f) => ({ ...f, category: v }))} options={TEMPLATE_CATEGORIES} placeholder="Select" />
             </Field>
           </div>
-          <Field label="Subject">
-            <input style={styles.input} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} placeholder="Template subject" />
+          <Field label="Title">
+            <input style={styles.input} value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Template title" />
           </Field>
           <Field label="Body">
             <textarea
@@ -1147,7 +1153,7 @@ function TemplatesPanel() {
                 <th style={styles.th}>ID</th>
                 <th style={styles.th}>Key</th>
                 <th style={styles.th}>Category</th>
-                <th style={styles.th}>Subject</th>
+                <th style={styles.th}>Title</th>
                 <th style={styles.th}>Active</th>
                 <th style={styles.th}>Actions</th>
               </tr>
@@ -1162,9 +1168,9 @@ function TemplatesPanel() {
                   </td>
                   <td style={styles.td}>
                     {editId === t.id ? (
-                      <input style={{ ...styles.input, marginBottom: 0 }} value={editForm.subject ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, subject: e.target.value }))} />
+                      <input style={{ ...styles.input, marginBottom: 0 }} value={editForm.title ?? ""} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} />
                     ) : (
-                      t.subject || "—"
+                      t.title || "—"
                     )}
                   </td>
                   <td style={styles.td}>{t.isActive !== false ? "✅" : "❌"}</td>
@@ -1178,7 +1184,7 @@ function TemplatesPanel() {
                       <div style={{ display: "flex", gap: 4 }}>
                         <button
                           style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px" }}
-                          onClick={() => { setEditId(t.id); setEditForm({ subject: t.subject, body: t.body, category: t.category, isActive: t.isActive }); }}
+                          onClick={() => { setEditId(t.id); setEditForm({ title: t.title, body: t.body, category: t.category, isActive: t.isActive }); }}
                         >
                           Edit
                         </button>

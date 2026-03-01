@@ -8,6 +8,7 @@ import HostSitesTab from "./components/HostSitesTab";
 import APITesterTab from "./components/APITesterTab";
 import OperatingHoursTab from "./components/OperatingHoursTab";
 import MessagingTab from "./components/MessagingTab";
+import DriverInboxTab from "./components/DriverInboxTab";
 
 const TABS = [
   { id: "services", label: "Services", component: ServicesTab },
@@ -16,6 +17,7 @@ const TABS = [
   { id: "hostsites", label: "Host Sites", component: HostSitesTab },
   { id: "hours", label: "Hours", component: OperatingHoursTab },
   { id: "messaging", label: "Messaging", component: MessagingTab },
+  { id: "inbox", label: "Driver Inbox", component: DriverInboxTab },
   { id: "tester", label: "API Tester", component: APITesterTab },
 ];
 

@@ -318,6 +318,21 @@ def create_template():
     )
 
 
+# ── FIXED: /key/<key> must come BEFORE /<int:template_id> ──────────────────
+# Flask registers routes in definition order. If /<int:template_id> were first,
+# a request to /templates/key/foo would never reach this handler because "key"
+# fails the int converter and Flask would 404 before trying the next route.
+
+@messaging_bp.get("/api/messaging/templates/key/<key>")
+def get_template_by_key(key):
+    """Look up a template by unique key."""
+    return proxy_json_request(
+        "GET", f"{BASE}/templates/key/{key}",
+        error_message="Failed to fetch template",
+        not_found="Template not found",
+    )
+
+
 @messaging_bp.get("/api/messaging/templates/<int:template_id>")
 def get_template(template_id):
     """Get a template by ID."""
@@ -349,14 +364,4 @@ def delete_template(template_id):
         error_message="Failed to delete template",
         not_found="Template not found",
         empty_message="Template deleted",
-    )
-
-
-@messaging_bp.get("/api/messaging/templates/key/<key>")
-def get_template_by_key(key):
-    """Look up a template by unique key."""
-    return proxy_json_request(
-        "GET", f"{BASE}/templates/key/{key}",
-        error_message="Failed to fetch template",
-        not_found="Template not found",
     )

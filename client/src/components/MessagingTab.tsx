@@ -1,6 +1,31 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "../styles";
 import { apiCall } from "../utils/api";
+import type {
+  Thread,
+  Message,
+  Participant,
+  Attachment,
+  StatusEvent,
+  MessageTemplate,
+} from "../types";
+
+/* ── local type helpers ────────────────────────────────────────────────── */
+
+/** Shape returned by most list endpoints after parsing. */
+type ApiData = Record<string, unknown>;
+
+interface PaginationInfo {
+  page: number;
+  totalPages?: number;
+  [key: string]: unknown;
+}
+
+interface ThreadFilters {
+  threadType: string;
+  status: string;
+  priority: string;
+}
 
 /* ── helpers ────────────────────────────────────────────────────────────── */
 
@@ -11,14 +36,14 @@ const ENTITY_TYPES = ["HOST_SITE", "CHARGER", "BOOKING", "DRIVER", "OTHER"];
 const MSG_TYPES = ["TEXT", "SYSTEM", "ACTION", "TEMPLATE"];
 const TEMPLATE_CATEGORIES = ["SUPPORT", "APPROVAL", "REQUEST", "GENERAL"];
 
-const priorityColor = {
+const priorityColor: Record<string, string> = {
   LOW: "#888",
   NORMAL: "#00d4aa",
   HIGH: "#ffa500",
   URGENT: "#ff4757",
 };
 
-const statusColor = {
+const statusColor: Record<string, string> = {
   OPEN: "#00d4aa",
   PENDING: "#ffa500",
   APPROVED: "#4caf50",
@@ -26,7 +51,7 @@ const statusColor = {
   CLOSED: "#888",
 };
 
-function Badge({ label, colorMap }) {
+function Badge({ label, colorMap }: { label: string; colorMap: Record<string, string> }) {
   const color = colorMap?.[label] || "#888";
   return (
     <span
@@ -42,7 +67,7 @@ function Badge({ label, colorMap }) {
   );
 }
 
-function timeAgo(iso) {
+function timeAgo(iso: string | undefined | null): string {
   if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -53,16 +78,16 @@ function timeAgo(iso) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-function formatDate(iso) {
+function formatDate(iso: string | undefined | null): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleString();
 }
 
-function qs(params) {
+function qs(params: Record<string, string | number | undefined | null>): string {
   const filtered = Object.entries(params).filter(
     ([, v]) => v !== undefined && v !== null && v !== ""
   );
-  return filtered.length ? "?" + new URLSearchParams(filtered).toString() : "";
+  return filtered.length ? "?" + new URLSearchParams(filtered as [string, string][]).toString() : "";
 }
 
 /* ── tiny sub-components ────────────────────────────────────────────────── */
@@ -71,7 +96,7 @@ function Spinner() {
   return <span style={{ color: "#888" }}>Loading…</span>;
 }
 
-function ErrorBox({ message }) {
+function ErrorBox({ message }: { message: string | null }) {
   if (!message) return null;
   return (
     <div
@@ -90,7 +115,7 @@ function ErrorBox({ message }) {
   );
 }
 
-function EmptyState({ text }) {
+function EmptyState({ text }: { text?: string }) {
   return (
     <div style={{ textAlign: "center", padding: 40, color: "#666" }}>
       {text || "Nothing here yet."}
@@ -98,7 +123,7 @@ function EmptyState({ text }) {
   );
 }
 
-function Field({ label, children }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ flex: 1, minWidth: 140 }}>
       <label style={styles.label}>{label}</label>
@@ -107,7 +132,17 @@ function Field({ label, children }) {
   );
 }
 
-function Select({ value, onChange, options, placeholder }) {
+function Select({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  options: string[];
+  placeholder?: string;
+}) {
   return (
     <select style={styles.select} value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="">{placeholder || "All"}</option>
@@ -132,6 +167,16 @@ function ThreadList({
   setFilters,
   pagination,
   onPage,
+}: {
+  threads: Thread[];
+  loading: boolean;
+  selectedId: number | undefined;
+  onSelect: (t: Thread) => void;
+  onRefresh: () => void;
+  filters: ThreadFilters;
+  setFilters: React.Dispatch<React.SetStateAction<ThreadFilters>>;
+  pagination: PaginationInfo | null;
+  onPage: (page: number) => void;
 }) {
   return (
     <div style={{ ...styles.card, flex: "0 0 400px", overflow: "auto", maxHeight: "80vh" }}>
@@ -243,7 +288,7 @@ function ThreadList({
 
 /* ── Create Thread form ─────────────────────────────────────────────────── */
 
-function CreateThreadForm({ onCreated }) {
+function CreateThreadForm({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     threadType: "GENERAL",
@@ -256,9 +301,10 @@ function CreateThreadForm({ onCreated }) {
     createdByAccountId: "",
   });
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target ? e.target.value : e }));
+  const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement> | string) =>
+    setForm((f) => ({ ...f, [key]: typeof e === "string" ? e : e.target.value }));
 
   const submit = async () => {
     if (!form.createdByAccountId) {
@@ -287,7 +333,8 @@ function CreateThreadForm({ onCreated }) {
       });
       onCreated();
     } else {
-      setError(res.data?.error || res.data?.message || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || (d?.message as string) || `Error ${res.status}`);
     }
   };
 
@@ -351,11 +398,24 @@ function CreateThreadForm({ onCreated }) {
 
 /* ── Thread detail (edit / delete) ──────────────────────────────────────── */
 
-function ThreadDetail({ thread, onUpdated, onDeleted }) {
+function ThreadDetail({
+  thread,
+  onUpdated,
+  onDeleted,
+}: {
+  thread: Thread;
+  onUpdated: () => void;
+  onDeleted: () => void;
+}) {
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState<{
+    subject?: string;
+    priority?: string;
+    status?: string;
+    assignedToAccountId?: string | number;
+  }>({});
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setEditing(false);
@@ -387,7 +447,8 @@ function ThreadDetail({ thread, onUpdated, onDeleted }) {
       setEditing(false);
       onUpdated();
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   };
 
@@ -395,7 +456,10 @@ function ThreadDetail({ thread, onUpdated, onDeleted }) {
     if (!window.confirm(`Delete thread #${thread.id}?`)) return;
     const res = await apiCall("DELETE", `/api/messaging/threads/${thread.id}`);
     if (res.ok) onDeleted();
-    else setError(res.data?.error || `Error ${res.status}`);
+    else {
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
+    }
   };
 
   return (
@@ -404,17 +468,17 @@ function ThreadDetail({ thread, onUpdated, onDeleted }) {
       {editing ? (
         <>
           <Field label="Subject">
-            <input style={styles.input} value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} />
+            <input style={styles.input} value={form.subject ?? ""} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))} />
           </Field>
           <div style={styles.row}>
             <Field label="Status">
-              <Select value={form.status} onChange={(v) => setForm((f) => ({ ...f, status: v }))} options={STATUSES} placeholder="—" />
+              <Select value={form.status ?? ""} onChange={(v) => setForm((f) => ({ ...f, status: v }))} options={STATUSES} placeholder="—" />
             </Field>
             <Field label="Priority">
-              <Select value={form.priority} onChange={(v) => setForm((f) => ({ ...f, priority: v }))} options={PRIORITIES} placeholder="—" />
+              <Select value={form.priority ?? ""} onChange={(v) => setForm((f) => ({ ...f, priority: v }))} options={PRIORITIES} placeholder="—" />
             </Field>
             <Field label="Assignee ID">
-              <input style={styles.input} type="number" value={form.assignedToAccountId} onChange={(e) => setForm((f) => ({ ...f, assignedToAccountId: e.target.value }))} />
+              <input style={styles.input} type="number" value={form.assignedToAccountId ?? ""} onChange={(e) => setForm((f) => ({ ...f, assignedToAccountId: e.target.value }))} />
             </Field>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -445,13 +509,13 @@ function ThreadDetail({ thread, onUpdated, onDeleted }) {
 
 /* ── Messages list + compose ────────────────────────────────────────────── */
 
-function MessagesPanel({ threadId }) {
-  const [messages, setMessages] = useState([]);
+function MessagesPanel({ threadId }: { threadId: number }) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState("");
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
 
   // compose
   const [body, setBody] = useState("");
@@ -460,7 +524,7 @@ function MessagesPanel({ threadId }) {
   const [sending, setSending] = useState(false);
 
   // edit
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editBody, setEditBody] = useState("");
 
   const fetchMessages = useCallback(async () => {
@@ -470,11 +534,12 @@ function MessagesPanel({ threadId }) {
     const res = await apiCall("GET", `/api/messaging/threads/${threadId}/messages${params}`);
     setLoading(false);
     if (res.ok) {
-      const d = res.data;
-      setMessages(d.data || d.content || (Array.isArray(d) ? d : []));
-      setPagination(d.pagination || d.meta || null);
+      const d = res.data as ApiData;
+      setMessages((d.data || d.content || (Array.isArray(d) ? d : [])) as Message[]);
+      setPagination((d.pagination || d.meta || null) as PaginationInfo | null);
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   }, [threadId, filterType, page]);
 
@@ -496,11 +561,12 @@ function MessagesPanel({ threadId }) {
       setBody("");
       fetchMessages();
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   };
 
-  const updateMsg = async (msgId) => {
+  const updateMsg = async (msgId: number) => {
     const res = await apiCall("PATCH", `/api/messaging/threads/${threadId}/messages/${msgId}`, { body: editBody });
     if (res.ok) {
       setEditingId(null);
@@ -508,7 +574,7 @@ function MessagesPanel({ threadId }) {
     }
   };
 
-  const deleteMsg = async (msgId) => {
+  const deleteMsg = async (msgId: number) => {
     if (!window.confirm("Delete this message?")) return;
     const res = await apiCall("DELETE", `/api/messaging/threads/${threadId}/messages/${msgId}`);
     if (res.ok) fetchMessages();
@@ -638,8 +704,8 @@ function MessagesPanel({ threadId }) {
 
 /* ── Attachments (inline in message) ────────────────────────────────────── */
 
-function AttachmentList({ threadId, messageId }) {
-  const [items, setItems] = useState(null);
+function AttachmentList({ threadId, messageId }: { threadId: number; messageId: number }) {
+  const [items, setItems] = useState<Attachment[] | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ fileName: "", contentType: "", fileSizeBytes: "", storageKey: "" });
   const [expanded, setExpanded] = useState(false);
@@ -647,8 +713,8 @@ function AttachmentList({ threadId, messageId }) {
   const fetch_ = async () => {
     const res = await apiCall("GET", `/api/messaging/threads/${threadId}/messages/${messageId}/attachments`);
     if (res.ok) {
-      const d = res.data;
-      setItems(d.data || d.content || (Array.isArray(d) ? d : Object.values(d).flat()));
+      const d = res.data as ApiData;
+      setItems((d.data || d.content || (Array.isArray(d) ? d : Object.values(d).flat())) as Attachment[]);
     }
   };
 
@@ -667,7 +733,7 @@ function AttachmentList({ threadId, messageId }) {
     }
   };
 
-  const remove = async (aId) => {
+  const remove = async (aId: number) => {
     if (!window.confirm("Delete attachment?")) return;
     await apiCall("DELETE", `/api/messaging/threads/${threadId}/messages/${messageId}/attachments/${aId}`);
     fetch_();
@@ -742,14 +808,18 @@ function AttachmentList({ threadId, messageId }) {
 
 /* ── Participants panel ─────────────────────────────────────────────────── */
 
-function ParticipantsPanel({ threadId }) {
-  const [participants, setParticipants] = useState([]);
+function ParticipantsPanel({ threadId }: { threadId: number }) {
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({ accountId: "", role: "MEMBER" });
-  const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<{
+    role?: string;
+    muted?: boolean;
+    canPost?: boolean;
+  }>({});
 
   const fetchParticipants = useCallback(async () => {
     setLoading(true);
@@ -757,10 +827,11 @@ function ParticipantsPanel({ threadId }) {
     const res = await apiCall("GET", `/api/messaging/threads/${threadId}/participants`);
     setLoading(false);
     if (res.ok) {
-      const d = res.data;
-      setParticipants(d.data || d.content || (Array.isArray(d) ? d : Object.values(d).flat()));
+      const d = res.data as ApiData;
+      setParticipants((d.data || d.content || (Array.isArray(d) ? d : Object.values(d).flat())) as Participant[]);
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   }, [threadId]);
 
@@ -779,11 +850,12 @@ function ParticipantsPanel({ threadId }) {
       setAddForm({ accountId: "", role: "MEMBER" });
       fetchParticipants();
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   };
 
-  const updateParticipant = async (accountId) => {
+  const updateParticipant = async (accountId: number) => {
     const res = await apiCall("PATCH", `/api/messaging/threads/${threadId}/participants/${accountId}`, editForm);
     if (res.ok) {
       setEditId(null);
@@ -791,7 +863,7 @@ function ParticipantsPanel({ threadId }) {
     }
   };
 
-  const removeParticipant = async (accountId) => {
+  const removeParticipant = async (accountId: number) => {
     if (!window.confirm(`Remove account #${accountId}?`)) return;
     const res = await apiCall("DELETE", `/api/messaging/threads/${threadId}/participants/${accountId}`);
     if (res.ok) fetchParticipants();
@@ -860,20 +932,20 @@ function ParticipantsPanel({ threadId }) {
                   <td style={styles.td}>
                     {editId === acctId ? (
                       <div style={{ display: "flex", gap: 4 }}>
-                        <button style={{ ...styles.button, fontSize: 11, padding: "3px 8px" }} onClick={() => updateParticipant(acctId)}>Save</button>
+                        <button style={{ ...styles.button, fontSize: 11, padding: "3px 8px" }} onClick={() => updateParticipant(acctId!)}>Save</button>
                         <button style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px" }} onClick={() => setEditId(null)}>✕</button>
                       </div>
                     ) : (
                       <div style={{ display: "flex", gap: 4 }}>
                         <button
                           style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px" }}
-                          onClick={() => { setEditId(acctId); setEditForm({ role: p.role, muted: p.muted, canPost: p.canPost }); }}
+                          onClick={() => { setEditId(acctId!); setEditForm({ role: p.role, muted: p.muted, canPost: p.canPost }); }}
                         >
                           Edit
                         </button>
                         <button
                           style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px", color: "#ff4757" }}
-                          onClick={() => removeParticipant(acctId)}
+                          onClick={() => removeParticipant(acctId!)}
                         >
                           ✕
                         </button>
@@ -892,10 +964,10 @@ function ParticipantsPanel({ threadId }) {
 
 /* ── Status Events panel ────────────────────────────────────────────────── */
 
-function StatusEventsPanel({ threadId }) {
-  const [events, setEvents] = useState([]);
+function StatusEventsPanel({ threadId }: { threadId: number }) {
+  const [events, setEvents] = useState<StatusEvent[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ toStatus: "OPEN", actorAccountId: "", eventReason: "" });
 
@@ -905,10 +977,11 @@ function StatusEventsPanel({ threadId }) {
     const res = await apiCall("GET", `/api/messaging/threads/${threadId}/status-events`);
     setLoading(false);
     if (res.ok) {
-      const d = res.data;
-      setEvents(d.data || d.content || (Array.isArray(d) ? d : []));
+      const d = res.data as ApiData;
+      setEvents((d.data || d.content || (Array.isArray(d) ? d : [])) as StatusEvent[]);
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   }, [threadId]);
 
@@ -929,7 +1002,8 @@ function StatusEventsPanel({ threadId }) {
       setForm({ toStatus: "OPEN", actorAccountId: form.actorAccountId, eventReason: "" });
       fetchEvents();
     } else {
-      setError(res.data?.error || res.data?.message || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || (d?.message as string) || `Error ${res.status}`);
     }
   };
 
@@ -998,18 +1072,23 @@ function StatusEventsPanel({ threadId }) {
 /* ── Templates panel ────────────────────────────────────────────────────── */
 
 function TemplatesPanel() {
-  const [templates, setTemplates] = useState([]);
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [filterCat, setFilterCat] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ templateKey: "", category: "GENERAL", title: "", body: "", isActive: true });
-  const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<{
+    title?: string;
+    body?: string;
+    category?: string;
+    isActive?: boolean;
+  }>({});
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [lookupKey, setLookupKey] = useState("");
-  const [lookupResult, setLookupResult] = useState(null);
+  const [lookupResult, setLookupResult] = useState<unknown>(null);
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
@@ -1018,11 +1097,12 @@ function TemplatesPanel() {
     const res = await apiCall("GET", `/api/messaging/templates${params}`);
     setLoading(false);
     if (res.ok) {
-      const d = res.data;
-      setTemplates(d.data || d.content || (Array.isArray(d) ? d : []));
-      setPagination(d.pagination || d.meta || null);
+      const d = res.data as ApiData;
+      setTemplates((d.data || d.content || (Array.isArray(d) ? d : [])) as MessageTemplate[]);
+      setPagination((d.pagination || d.meta || null) as PaginationInfo | null);
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   }, [filterCat, page]);
 
@@ -1048,23 +1128,25 @@ function TemplatesPanel() {
       setForm({ templateKey: "", category: "GENERAL", title: "", body: "", isActive: true });
       fetchTemplates();
     } else {
-      const fe = res.data?.fieldErrors;
-      const msg = fe?.length ? fe.map((e) => `${e.field}: ${e.message}`).join("; ") : res.data?.message || res.data?.error || `Error ${res.status}`;
+      const d = res.data as ApiData;
+      const fe = d?.fieldErrors as Array<{ field: string; message: string }> | undefined;
+      const msg = fe?.length ? fe.map((e) => `${e.field}: ${e.message}`).join("; ") : (d?.message as string) || (d?.error as string) || `Error ${res.status}`;
       setError(msg);
     }
   };
 
-  const update = async (id) => {
+  const update = async (id: number) => {
     const res = await apiCall("PATCH", `/api/messaging/templates/${id}`, editForm);
     if (res.ok) {
       setEditId(null);
       fetchTemplates();
     } else {
-      setError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setError((d?.error as string) || `Error ${res.status}`);
     }
   };
 
-  const remove = async (id) => {
+  const remove = async (id: number) => {
     if (!window.confirm("Delete template?")) return;
     const res = await apiCall("DELETE", `/api/messaging/templates/${id}`);
     if (res.ok) fetchTemplates();
@@ -1099,7 +1181,7 @@ function TemplatesPanel() {
         />
         <button style={styles.buttonSecondary} onClick={lookupByKey}>🔍</button>
       </div>
-      {lookupResult && (
+      {lookupResult != null && (
         <div style={{ ...styles.response, marginBottom: 12, maxHeight: 150 }}>
           <pre style={{ margin: 0, color: "#c9d1d9" }}>{JSON.stringify(lookupResult, null, 2)}</pre>
         </div>
@@ -1226,13 +1308,13 @@ export default function MessagingTab() {
   const [subTab, setSubTab] = useState("threads");
 
   // thread state
-  const [threads, setThreads] = useState([]);
+  const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
-  const [threadsError, setThreadsError] = useState(null);
-  const [selectedThread, setSelectedThread] = useState(null);
-  const [filters, setFilters] = useState({ threadType: "", status: "", priority: "" });
+  const [threadsError, setThreadsError] = useState<string | null>(null);
+  const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
+  const [filters, setFilters] = useState<ThreadFilters>({ threadType: "", status: "", priority: "" });
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
 
   // detail panel tab
   const [detailTab, setDetailTab] = useState("messages");
@@ -1244,11 +1326,12 @@ export default function MessagingTab() {
     const res = await apiCall("GET", `/api/messaging/threads${params}`);
     setThreadsLoading(false);
     if (res.ok) {
-      const d = res.data;
-      setThreads(d.data || d.content || (Array.isArray(d) ? d : []));
-      setPagination(d.pagination || d.meta || null);
+      const d = res.data as ApiData;
+      setThreads((d.data || d.content || (Array.isArray(d) ? d : [])) as Thread[]);
+      setPagination((d.pagination || d.meta || null) as PaginationInfo | null);
     } else {
-      setThreadsError(res.data?.error || `Error ${res.status}`);
+      const d = res.data as ApiData;
+      setThreadsError((d?.error as string) || `Error ${res.status}`);
     }
   }, [filters, page]);
 
@@ -1256,7 +1339,7 @@ export default function MessagingTab() {
     if (subTab === "threads") fetchThreads();
   }, [subTab, fetchThreads]);
 
-  const handleSelectThread = (t) => {
+  const handleSelectThread = (t: Thread) => {
     setSelectedThread(t);
     setDetailTab("messages");
   };

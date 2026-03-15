@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { apiCall, EVBUDDY_API, API_BASE } from "../utils/api";
+import type { HostSite, SiteCharger, DaySchedule, HoursException, ScopeType } from "../types";
 
 const DAY_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const DEFAULT_DAYS = Array.from({ length: 7 }, (_, i) => ({
+const DEFAULT_DAYS: DaySchedule[] = Array.from({ length: 7 }, (_, i) => ({
   day_of_week: i + 1,
   is_closed: false,
   open_time: "09:00",
@@ -13,24 +14,24 @@ const DEFAULT_DAYS = Array.from({ length: 7 }, (_, i) => ({
 
 export default function OperatingHoursTab() {
   // --- Sites & chargers lists ---
-  const [sites, setSites] = useState([]);
+  const [sites, setSites] = useState<HostSite[]>([]);
   const [sitesLoading, setSitesLoading] = useState(false);
-  const [chargers, setChargers] = useState([]);
+  const [chargers, setChargers] = useState<SiteCharger[]>([]);
   const [chargersLoading, setChargersLoading] = useState(false);
   const [chargerSiteId, setChargerSiteId] = useState("");
 
   // --- Hours state ---
-  const [scopeType, setScopeType] = useState("site");
+  const [scopeType, setScopeType] = useState<ScopeType>("site");
   const [scopeId, setScopeId] = useState("");
   const [timezone, setTimezone] = useState("America/New_York");
   const [days, setDays] = useState(DEFAULT_DAYS);
   const [hoursLoading, setHoursLoading] = useState(false);
-  const [hoursMsg, setHoursMsg] = useState(null);
+  const [hoursMsg, setHoursMsg] = useState<{ type: string; text: string } | null>(null);
 
   // --- Exceptions state ---
-  const [exceptions, setExceptions] = useState([]);
+  const [exceptions, setExceptions] = useState<HoursException[]>([]);
   const [excLoading, setExcLoading] = useState(false);
-  const [excMsg, setExcMsg] = useState(null);
+  const [excMsg, setExcMsg] = useState<{ type: string; text: string } | null>(null);
   const [excFrom, setExcFrom] = useState("2025-01-01");
   const [excTo, setExcTo] = useState("2026-12-31");
 
@@ -57,7 +58,7 @@ export default function OperatingHoursTab() {
   };
 
   // ---- Load chargers for a site ----
-  const fetchChargers = async (siteId) => {
+  const fetchChargers = async (siteId: string) => {
     setChargers([]);
     setScopeId("");
     if (!siteId) return;
@@ -127,7 +128,7 @@ export default function OperatingHoursTab() {
   };
 
   // ---- Day helpers ----
-  const updateDay = (idx, field, value) => {
+  const updateDay = (idx: number, field: keyof DaySchedule, value: string | number | boolean) => {
     setDays(prev => prev.map((d, i) => i === idx ? { ...d, [field]: value } : d));
   };
 
@@ -152,7 +153,7 @@ export default function OperatingHoursTab() {
     if (!scopeId || !newExcDate) { setExcMsg({ type: "error", text: "Scope ID and Date are required" }); return; }
     setAddExcLoading(true);
     setExcMsg(null);
-    const body = {
+    const body: Record<string, unknown> = {
       scope_type: scopeType,
       scope_id: Number(scopeId),
       date_value: newExcDate,
@@ -185,7 +186,7 @@ export default function OperatingHoursTab() {
         <div style={styles.row}>
           <div style={{ flex: "0 0 140px" }}>
             <label style={styles.label}>Scope Type</label>
-            <select style={styles.select} value={scopeType} onChange={e => setScopeType(e.target.value)}>
+            <select style={styles.select} value={scopeType} onChange={e => setScopeType(e.target.value as ScopeType)}>
               <option value="site">Site</option>
               <option value="business">Business</option>
               <option value="charger">Charger</option>

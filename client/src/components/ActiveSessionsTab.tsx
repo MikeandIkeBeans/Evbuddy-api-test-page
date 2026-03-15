@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { EVBUDDY_API } from "../utils/api";
+import { ChargingSession } from "../types";
 
 export default function ActiveSessionsTab() {
-  const [sessions, setSessions] = useState([]);
+  const [sessions, setSessions] = useState<ChargingSession[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   const fetchSessions = async () => {
@@ -36,7 +37,7 @@ export default function ActiveSessionsTab() {
         setError(`Failed to fetch: ${res.status}`);
       }
     } catch (err) {
-      setError(`Connection failed: ${err.message}`);
+      setError(`Connection failed: ${(err as Error).message}`);
     }
     setLoading(false);
   };
@@ -49,7 +50,7 @@ export default function ActiveSessionsTab() {
     return () => clearInterval(interval);
   }, [autoRefresh]);
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = (status: string) => {
     switch (status?.toUpperCase()) {
       case "CHARGING": return { bg: "#00d4aa22", color: "#00d4aa", icon: "⚡" };
       case "STARTING":
@@ -63,14 +64,14 @@ export default function ActiveSessionsTab() {
     }
   };
 
-  const formatDuration = (seconds) => {
+  const formatDuration = (seconds: number) => {
     if (!seconds) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${String(secs).padStart(2, "0")}`;
   };
 
-  const stopSession = async (sessionId) => {
+  const stopSession = async (sessionId: string) => {
     try {
       await fetch(`${EVBUDDY_API}/v1/sessions/${sessionId}/stop`, {
         method: "POST",
@@ -120,7 +121,7 @@ export default function ActiveSessionsTab() {
       {sessions.length > 0 && (
         <div style={{ display: "grid", gap: 12 }}>
           {sessions.map(session => {
-            const statusStyle = getStatusStyle(session.status);
+            const statusStyle = getStatusStyle(session.status ?? "");
             return (
               <div
                 key={session.sessionId}
@@ -187,7 +188,7 @@ export default function ActiveSessionsTab() {
                   </div>
                 </div>
 
-                {["CHARGING", "STARTING", "PREPARING"].includes(session.status?.toUpperCase()) && (
+                {["CHARGING", "STARTING", "PREPARING"].includes(session.status?.toUpperCase() ?? "") && (
                   <button
                     style={{ ...styles.button, ...styles.buttonDanger, padding: "8px 16px" }}
                     onClick={() => stopSession(session.sessionId)}

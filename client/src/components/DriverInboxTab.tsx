@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styles from "../styles";
 import { apiCall } from "../utils/api";
+import type { Thread, Message } from "../types";
 
 /* ── Constants & Helpers ───────────────────────────────────────────────── */
 
@@ -8,14 +9,14 @@ const ROLE_TABS = ["Customer", "EV Driver"];
 const CATEGORY_TABS = ["Convos", "Requests", "Alerts"];
 
 /** Map wireframe categories → API threadType filters */
-const CATEGORY_TO_TYPE = {
+const CATEGORY_TO_TYPE: Record<string, string> = {
   Convos: "GENERAL",
   Requests: "REQUEST",
   Alerts: "APPROVAL",
 };
 
 /** Status badge styling keyed on thread status */
-const STATUS_DISPLAY = {
+const STATUS_DISPLAY: Record<string, { label: string; bg: string; color: string; border: string }> = {
   OPEN: { label: "OPEN", bg: "#00d4aa22", color: "#00d4aa", border: "#00d4aa55" },
   PENDING: { label: "LIVE", bg: "#ffa50022", color: "#ffa500", border: "#ffa50055" },
   APPROVED: { label: "DONE", bg: "#88888822", color: "#999", border: "#88888855" },
@@ -24,9 +25,9 @@ const STATUS_DISPLAY = {
 };
 
 /** Pretty thread title – uses subject or builds from threadType + relatedEntityType */
-function threadTitle(t) {
+function threadTitle(t: Thread) {
   if (t.subject) return t.subject;
-  const typeLabels = {
+  const typeLabels: Record<string, string> = {
     REQUEST: "Request",
     APPROVAL: "Host",
     SUPPORT: "Support",
@@ -41,7 +42,7 @@ function threadTitle(t) {
 }
 
 /** Human-friendly relative time */
-function timeAgo(iso) {
+function timeAgo(iso: string | undefined) {
   if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -53,7 +54,7 @@ function timeAgo(iso) {
 }
 
 /** Build snippet text from the thread's last message or metadata */
-function threadSnippet(t, lastMsg) {
+function threadSnippet(t: Thread, lastMsg: { body?: string } | undefined) {
   if (lastMsg?.body) return lastMsg.body;
   if (t.relatedEntityType === "CHARGER" && t.status === "APPROVED")
     return "Approved access";
@@ -73,7 +74,7 @@ function Spinner() {
   );
 }
 
-function Empty({ text }) {
+function Empty({ text }: { text?: string }) {
   return (
     <div style={{ textAlign: "center", padding: 48, color: "#666" }}>
       {text || "No messages yet."}
@@ -81,7 +82,7 @@ function Empty({ text }) {
   );
 }
 
-function ErrorBox({ message }) {
+function ErrorBox({ message }: { message: string | null }) {
   if (!message) return null;
   return (
     <div
@@ -102,7 +103,7 @@ function ErrorBox({ message }) {
 
 /* ── Status badge (LIVE / OPEN / DONE) ─────────────────────────────────── */
 
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: string }) {
   const s = STATUS_DISPLAY[status] || STATUS_DISPLAY.OPEN;
   return (
     <span
@@ -126,7 +127,7 @@ function StatusBadge({ status }) {
 
 /* ── Pill toggle (role / category tabs) ────────────────────────────────── */
 
-function PillGroup({ items, active, onChange, style: outerStyle }) {
+function PillGroup({ items, active, onChange, style: outerStyle }: { items: string[]; active: string; onChange: (item: string) => void; style?: React.CSSProperties }) {
   return (
     <div
       style={{
@@ -169,7 +170,7 @@ function PillGroup({ items, active, onChange, style: outerStyle }) {
 
 /* ── Thread card ───────────────────────────────────────────────────────── */
 
-function ThreadCard({ thread, lastMessage, onClick }) {
+function ThreadCard({ thread, lastMessage, onClick }: { thread: Thread; lastMessage?: { body?: string }; onClick: () => void }) {
   const title = threadTitle(thread);
   const snippet = threadSnippet(thread, lastMessage);
   const time = timeAgo(thread.lastMessageAt || thread.updatedAt || thread.createdAt);
@@ -241,10 +242,10 @@ function ThreadCard({ thread, lastMessage, onClick }) {
 
 /* ── Thread detail / conversation view ─────────────────────────────────── */
 
-function ThreadDetailView({ thread, onBack }) {
-  const [messages, setMessages] = useState([]);
+function ThreadDetailView({ thread, onBack }: { thread: Thread; onBack: () => void }) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [senderAccountId] = useState("1"); // would come from auth context
@@ -289,7 +290,7 @@ function ThreadDetailView({ thread, onBack }) {
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();
@@ -428,7 +429,7 @@ function ThreadDetailView({ thread, onBack }) {
 
 /* ── Request Mobile Charge dialog ──────────────────────────────────────── */
 
-function RequestMobileChargeForm({ onCreated, onCancel }) {
+function RequestMobileChargeForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }) {
   const [form, setForm] = useState({
     subject: "Mobile Charge Request",
     location: "",
@@ -436,7 +437,7 @@ function RequestMobileChargeForm({ onCreated, onCancel }) {
     createdByAccountId: "",
   });
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
     if (!form.createdByAccountId) {
@@ -539,7 +540,7 @@ const NAV_ITEMS = [
   { id: "account", label: "Account", icon: "👤" },
 ];
 
-function BottomNav({ active, onChange }) {
+function BottomNav({ active, onChange }: { active: string; onChange: (id: string) => void }) {
   return (
     <div
       style={{
@@ -588,11 +589,11 @@ export default function DriverInboxTab() {
   const [role, setRole] = useState("EV Driver");
   const [category, setCategory] = useState("Convos");
   const [navTab, setNavTab] = useState("inbox");
-  const [threads, setThreads] = useState([]);
-  const [lastMessages, setLastMessages] = useState({}); // threadId → msg
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [lastMessages, setLastMessages] = useState<Record<number, { body?: string }>>({}); // threadId → msg
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [selectedThread, setSelectedThread] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
   const [showRequestForm, setShowRequestForm] = useState(false);
 
   /* ── fetch threads ──────────────────────────────────────────────────── */
@@ -616,9 +617,9 @@ export default function DriverInboxTab() {
       setThreads(list);
 
       // Fetch latest message for each thread (for snippet preview)
-      const msgMap = {};
+      const msgMap: Record<number, { body?: string }> = {};
       await Promise.all(
-        list.slice(0, 15).map(async (t) => {
+        list.slice(0, 15).map(async (t: Thread) => {
           const mRes = await apiCall(
             "GET",
             `/api/messaging/threads/${t.id}/messages?pageSize=1&sort=createdAt&order=desc`
@@ -643,7 +644,7 @@ export default function DriverInboxTab() {
   }, [fetchThreads]);
 
   /* ── event handlers ─────────────────────────────────────────────────── */
-  const openThread = (t) => setSelectedThread(t);
+  const openThread = (t: Thread) => setSelectedThread(t);
   const closeThread = () => {
     setSelectedThread(null);
     fetchThreads(); // refresh list when returning

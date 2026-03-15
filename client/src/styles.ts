@@ -1,5 +1,5 @@
 /** Shared styles used across all tabs and components. */
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   container: {
     fontFamily: "'Plus Jakarta Sans', 'SF Pro Text', 'Avenir Next', sans-serif",
     maxWidth: 1480,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { apiCall } from "../utils/api";
+import type { ApiResponse, ApiCatalogGroup } from "../types";
 
 /* ------------------------------------------------------------------ */
 /*  API endpoint catalog – Spring Boot / backend-connected routes only */
@@ -137,7 +138,7 @@ const API_CATALOG = [
   {
     title: "Employees",
     icon: "\uD83D\uDC77",
-    description: "Employee CRUD, site assignments, permissions & roles",
+    description: "Employee CRUD, site assignments & permissions",
     backend: "Port 9005 (evbuddy_homepage)",
     routes: [
       { method: "GET",    path: "/api/businesses/:business_id/employees", desc: "Employees for a business" },
@@ -154,9 +155,6 @@ const API_CATALOG = [
       { method: "GET",    path: "/api/employees/:employee_id/permissions", desc: "Employee permissions" },
       { method: "POST",   path: "/api/employees/:employee_id/permissions", desc: "Add permission" },
       { method: "DELETE", path: "/api/employees/:employee_id/permissions/:permission_id", desc: "Remove permission" },
-      { method: "GET",    path: "/api/roles", desc: "List all roles" },
-      { method: "GET",    path: "/api/users/:user_id/roles", desc: "Roles for a user" },
-      { method: "POST",   path: "/api/users/:user_id/roles", desc: "Assign role to user" },
     ],
   },
   {
@@ -198,21 +196,9 @@ const API_CATALOG = [
       { method: "PUT",  path: "/api/assets/:asset_id/tariff", desc: "Set asset tariff" },
     ],
   },
-  {
-    title: "Security",
-    icon: "\uD83D\uDD12",
-    description: "RBAC roles, audit log & operator/asset setup",
-    backend: "Local (Flask)",
-    routes: [
-      { method: "GET",  path: "/api/security/roles", desc: "List security roles" },
-      { method: "GET",  path: "/api/security/audit-log", desc: "Security audit log" },
-      { method: "POST", path: "/api/security/setup/operator", desc: "Setup operator" },
-      { method: "POST", path: "/api/security/setup/asset", desc: "Setup asset" },
-    ],
-  },
 ];
 
-const METHOD_COLORS = {
+const METHOD_COLORS: Record<string, string> = {
   GET:    "#00d4aa",
   POST:   "#00a8e8",
   PUT:    "#ffa500",
@@ -225,7 +211,7 @@ const totalRoutes = API_CATALOG.reduce((n, g) => n + g.routes.length, 0);
 /* ------------------------------------------------------------------ */
 /*  Collapsible API section                                            */
 /* ------------------------------------------------------------------ */
-function APISection({ group, defaultOpen = false }) {
+function APISection({ group, defaultOpen = false }: { group: ApiCatalogGroup; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
@@ -335,9 +321,9 @@ function APISection({ group, defaultOpen = false }) {
 /*  Main ServicesTab                                                    */
 /* ------------------------------------------------------------------ */
 export default function ServicesTab() {
-  const [services, setServices] = useState(null);
+  const [services, setServices] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState("status"); // "status" | "catalog"
+  const [view, setView] = useState<"status" | "catalog">("status");
   const [search, setSearch] = useState("");
 
   const fetchServices = async () => {
@@ -361,7 +347,7 @@ export default function ServicesTab() {
         if (matchedRoutes.length > 0) return { ...g, routes: matchedRoutes };
         if (g.title.toLowerCase().includes(q) || g.description.toLowerCase().includes(q)) return g;
         return null;
-      }).filter(Boolean)
+      }).filter((g): g is typeof API_CATALOG[number] => g !== null)
     : API_CATALOG;
 
   const filteredRouteCount = filteredCatalog.reduce((n, g) => n + g.routes.length, 0);
@@ -453,9 +439,9 @@ export default function ServicesTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(services.data.services)
+                  {Object.entries(services.data.services as Record<string, any>)
                     .sort(([, a], [, b]) => a.port - b.port)
-                    .map(([name, info]) => (
+                    .map(([name, info]: [string, any]) => (
                       <tr key={name}>
                         <td style={{ ...styles.td, fontWeight: 500 }}>{name}</td>
                         <td style={{ ...styles.td, fontFamily: "monospace", color: "#00a8e8" }}>{info.port}</td>

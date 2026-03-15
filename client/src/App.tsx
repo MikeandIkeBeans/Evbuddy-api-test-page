@@ -9,8 +9,10 @@ import APITesterTab from "./components/APITesterTab";
 import OperatingHoursTab from "./components/OperatingHoursTab";
 import MessagingTab from "./components/MessagingTab";
 import DriverInboxTab from "./components/DriverInboxTab";
+import V2VTab from "./components/V2VTab";
 
 const TABS = [
+  { id: "v2v", label: "V2V", component: V2VTab },
   { id: "services", label: "Services", component: ServicesTab },
   { id: "chargers", label: "Chargers", component: LiveChargersTab },
   { id: "sessions", label: "Sessions", component: ActiveSessionsTab },
@@ -22,7 +24,7 @@ const TABS = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("services");
+  const [activeTab, setActiveTab] = useState("v2v");
   const activeTabConfig = TABS.find((tab) => tab.id === activeTab) ?? TABS[0];
   const ActiveTabComponent = activeTabConfig.component;
 

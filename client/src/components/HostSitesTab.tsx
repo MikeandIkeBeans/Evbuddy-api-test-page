@@ -2,24 +2,25 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { EVBUDDY_API, API_BASE } from "../utils/api";
 import { JsonView } from "./ResponseDisplay";
+import { HostSite, SiteCharger } from "../types";
 
 export default function HostSitesTab() {
-  const [sites, setSites] = useState([]);
+  const [sites, setSites] = useState<HostSite[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [selectedSite, setSelectedSite] = useState(null);
-  const [siteChargers, setSiteChargers] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedSite, setSelectedSite] = useState<HostSite | null>(null);
+  const [siteChargers, setSiteChargers] = useState<SiteCharger[]>([]);
 
   // Hotel auth flow state
   const [showHotelAuth, setShowHotelAuth] = useState(false);
   const [roomNumber, setRoomNumber] = useState("");
   const [lastName, setLastName] = useState("");
-  const [selectedCharger, setSelectedCharger] = useState(null);
+  const [selectedCharger, setSelectedCharger] = useState<SiteCharger | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
-  const [authResponse, setAuthResponse] = useState(null);
-  const [authError, setAuthError] = useState(null);
+  const [authResponse, setAuthResponse] = useState<any>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  const openHotelAuth = (site) => {
+  const openHotelAuth = (_site: HostSite) => {
     setShowHotelAuth(true);
     setRoomNumber("");
     setLastName("");
@@ -39,11 +40,11 @@ export default function HostSitesTab() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          siteId: String(selectedSite.id),
+          siteId: String(selectedSite!.id),
           chargerId: String(chargerId),
           roomNumber: roomNumber,
           lastName: lastName,
-          hostId: selectedSite.host_id || null,
+          hostId: selectedSite!.host_id || null,
         }),
       });
       if (res.ok) {
@@ -54,7 +55,7 @@ export default function HostSitesTab() {
         setAuthError(errText || `Auth failed (${res.status})`);
       }
     } catch (err) {
-      setAuthError(`Connection failed: ${err.message}`);
+      setAuthError(`Connection failed: ${(err as Error).message}`);
     }
     setAuthLoading(false);
   };
@@ -75,12 +76,12 @@ export default function HostSitesTab() {
         setError(`Failed to fetch: ${res.status}`);
       }
     } catch (err) {
-      setError(`Connection failed: ${err.message}`);
+      setError(`Connection failed: ${(err as Error).message}`);
     }
     setLoading(false);
   };
 
-  const fetchSiteChargers = async (siteId) => {
+  const fetchSiteChargers = async (siteId: number) => {
     try {
       const res = await fetch(`${EVBUDDY_API}/v1/chargers/site/${siteId}`);
       if (res.ok) {
@@ -100,13 +101,13 @@ export default function HostSitesTab() {
     }
   }, [selectedSite]);
 
-  const getStatusBadge = (status) => {
-    const colors = {
+  const getStatusBadge = (status: string | undefined) => {
+    const colors: Record<string, { bg: string; color: string }> = {
       active: { bg: "#00d4aa22", color: "#00d4aa" },
       inactive: { bg: "#88888822", color: "#888" },
       pending: { bg: "#ffa50022", color: "#ffa500" },
     };
-    const style = colors[status?.toLowerCase()] || colors.inactive;
+    const style = colors[status?.toLowerCase() ?? ""] || colors.inactive;
     return { ...styles.badge, background: style.bg, color: style.color };
   };
 

@@ -26,7 +26,6 @@ from config import (
     MICROSERVICE_HOST,
     SERVICE_STATUS_PATHS,
 )
-from security import validate_ocpp_command, AuthorizationError
 
 
 # =============================================================================
@@ -160,14 +159,6 @@ def require_field(data, field, message=None):
     if not data.get(field):
         return jsonify({"error": message or f"{field} is required"}), 400
     return None
-
-
-def ocpp_guard(user_id, asset_id, command):
-    try:
-        validate_ocpp_command(user_id, asset_id, command)
-        return None
-    except AuthorizationError as e:
-        return jsonify({"error": str(e), "code": "FORBIDDEN"}), 403
 
 
 # =============================================================================

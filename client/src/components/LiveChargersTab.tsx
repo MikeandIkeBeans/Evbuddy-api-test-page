@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { EVBUDDY_API } from "../utils/api";
 import { JsonView } from "./ResponseDisplay";
+import { ChargePoint, ChargePointStatus } from "../types";
 
 export default function LiveChargersTab() {
-  const [chargePoints, setChargePoints] = useState([]);
+  const [chargePoints, setChargePoints] = useState<ChargePoint[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
-  const [selectedCp, setSelectedCp] = useState(null);
-  const [cpStatus, setCpStatus] = useState(null);
+  const [selectedCp, setSelectedCp] = useState<string | null>(null);
+  const [cpStatus, setCpStatus] = useState<ChargePointStatus | null>(null);
 
   const fetchChargePoints = async () => {
     setLoading(true);
@@ -23,12 +24,12 @@ export default function LiveChargersTab() {
         setError(`Failed to fetch: ${res.status}`);
       }
     } catch (err) {
-      setError(`Connection failed: ${err.message}. Is the EV Buddy server running?`);
+      setError(`Connection failed: ${(err as Error).message}. Is the EV Buddy server running?`);
     }
     setLoading(false);
   };
 
-  const fetchCpStatus = async (cpId) => {
+  const fetchCpStatus = async (cpId: string) => {
     try {
       const res = await fetch(`${EVBUDDY_API}/v1/chargers/ocpp/${cpId}/status`);
       if (res.ok) {
@@ -36,7 +37,7 @@ export default function LiveChargersTab() {
         setCpStatus(data);
       }
     } catch (err) {
-      setCpStatus({ error: err.message });
+      setCpStatus({ error: (err as Error).message });
     }
   };
 
@@ -52,7 +53,7 @@ export default function LiveChargersTab() {
     if (selectedCp) fetchCpStatus(selectedCp);
   }, [selectedCp]);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string | undefined) => {
     if (!status) return "#888";
     const s = status.toLowerCase();
     if (s === "available") return "#00d4aa";

@@ -53,7 +53,6 @@ If `client/dist/index.html` exists, Flask serves the built app from `/`.
 app.py                 Flask entrypoint and app factory
 config.py              Shared settings and service registry
 helpers.py             Shared HTTP/session/auth helpers
-security.py            RBAC and scope enforcement
 routes/                Flask blueprints grouped by domain
 templates/index.html   Server-rendered fallback page
 test-page.html         Guest flow test page

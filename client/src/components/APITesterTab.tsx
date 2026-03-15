@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import styles from "../styles";
 import { apiCall } from "../utils/api";
 import { ResponseDisplay } from "./ResponseDisplay";
+import { ApiResponse, HttpMethod } from "../types";
 
 export default function APITesterTab() {
   const [method, setMethod] = useState("GET");
   const [endpoint, setEndpoint] = useState("/api/health");
   const [body, setBody] = useState("");
   const [userId, setUserId] = useState("");
-  const [response, setResponse] = useState(null);
+  const [response, setResponse] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   const sendRequest = async () => {
@@ -23,7 +24,7 @@ export default function APITesterTab() {
         return;
       }
     }
-    const res = await apiCall(method, endpoint, parsedBody, userId || null);
+    const res = await apiCall(method as HttpMethod, endpoint, parsedBody, userId || null);
     setResponse(res);
     setLoading(false);
   };
@@ -31,8 +32,6 @@ export default function APITesterTab() {
   const quickEndpoints = [
     { method: "GET", endpoint: "/health", label: "Health" },
     { method: "GET", endpoint: "/api/services", label: "Services" },
-    { method: "GET", endpoint: "/api/roles", label: "Roles" },
-    { method: "GET", endpoint: "/api/security/roles", label: "Security Roles" },
     { method: "GET", endpoint: "/api/sites/1/members", label: "Site 1 Members" },
     { method: "GET", endpoint: "/api/sites/1/drivers?actor_user_id=1", label: "Site 1 Drivers" },
     { method: "GET", endpoint: "/api/audit-log?limit=10", label: "Audit Log" },

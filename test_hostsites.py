@@ -1,12 +1,12 @@
 """
 Test script for the Host Sites API endpoints.
-Target: http://dev.evbuddy.net:9005
+Target: http://appdev.evbuddy.net:9005
 """
 import requests
 import json
 import sys
 
-BASE_URL = "http://dev.evbuddy.net:9005"
+BASE_URL = "http://appdev.evbuddy.net:9005"
 
 def sep(title):
     print(f"\n{'=' * 60}")

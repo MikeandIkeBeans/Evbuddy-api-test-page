@@ -1,4 +1,15 @@
 {
+  "name": "evbuddy-homepage",
+  "private": true,
+  "scripts": {
+    "test:backend": ".\\.venv\\Scripts\\python.exe -m pytest -m \"not stress\" -ra",
+    "test:backend:stress": ".\\.venv\\Scripts\\python.exe -m pytest -m stress -ra",
+    "test:frontend": "npm --prefix client run test",
+    "build:frontend": "npm --prefix client run build",
+    "test:autonomous": ".\\.venv\\Scripts\\python.exe scripts/run_autonomous_test_workflow.py",
+    "test:autonomous:stress": ".\\.venv\\Scripts\\python.exe scripts/run_autonomous_test_workflow.py --include-stress",
+    "test:break": ".\\.venv\\Scripts\\python.exe scripts/run_autonomous_test_workflow.py --include-stress --iterations 5 --continue-on-failure"
+  },
   "devDependencies": {
     "vite": "^7.3.1"
   },

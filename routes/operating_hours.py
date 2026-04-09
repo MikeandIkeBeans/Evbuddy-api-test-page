@@ -8,12 +8,12 @@ Proxies requests to the Operating Hours microservice on port 9008.
 
 from flask import Blueprint, request
 
-from config import MICROSERVICE_HOST
+from config import EVBUDDY_DEV_HOST
 from helpers import get_json_body, proxy_json_request, with_query_params
 
 operating_hours_bp = Blueprint("operating_hours", __name__)
 
-OPERATING_HOURS_BASE = f"{MICROSERVICE_HOST}:9008"
+OPERATING_HOURS_BASE = f"{EVBUDDY_DEV_HOST}:9008"
 
 
 @operating_hours_bp.get("/api/operating-hours")

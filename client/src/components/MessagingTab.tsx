@@ -9,6 +9,7 @@ import type {
   StatusEvent,
   MessageTemplate,
 } from "../types";
+import { Button, Chip, Panel, SectionHeader, StatusPill } from "./primitives";
 
 /* ── local type helpers ────────────────────────────────────────────────── */
 
@@ -37,22 +38,22 @@ const MSG_TYPES = ["TEXT", "SYSTEM", "ACTION", "TEMPLATE"];
 const TEMPLATE_CATEGORIES = ["SUPPORT", "APPROVAL", "REQUEST", "GENERAL"];
 
 const priorityColor: Record<string, string> = {
-  LOW: "#888",
-  NORMAL: "#00d4aa",
-  HIGH: "#ffa500",
-  URGENT: "#ff4757",
+  LOW: "var(--text-muted)",
+  NORMAL: "var(--accent-primary)",
+  HIGH: "var(--semantic-warning)",
+  URGENT: "var(--semantic-error)",
 };
 
 const statusColor: Record<string, string> = {
-  OPEN: "#00d4aa",
-  PENDING: "#ffa500",
-  APPROVED: "#4caf50",
-  REJECTED: "#ff4757",
-  CLOSED: "#888",
+  OPEN: "var(--accent-primary)",
+  PENDING: "var(--semantic-warning)",
+  APPROVED: "var(--semantic-success)",
+  REJECTED: "var(--semantic-error)",
+  CLOSED: "var(--text-muted)",
 };
 
 function Badge({ label, colorMap }: { label: string; colorMap: Record<string, string> }) {
-  const color = colorMap?.[label] || "#888";
+  const color = colorMap?.[label] || "var(--text-muted)";
   return (
     <span
       style={{
@@ -93,7 +94,7 @@ function qs(params: Record<string, string | number | undefined | null>): string 
 /* ── tiny sub-components ────────────────────────────────────────────────── */
 
 function Spinner() {
-  return <span style={{ color: "#888" }}>Loading…</span>;
+  return <span style={{ color: "var(--text-muted)" }}>Loading…</span>;
 }
 
 function ErrorBox({ message }: { message: string | null }) {
@@ -102,10 +103,10 @@ function ErrorBox({ message }: { message: string | null }) {
     <div
       style={{
         padding: 12,
-        background: "#ff475715",
-        border: "1px solid #ff475744",
+        background: "var(--semantic-error-soft)",
+        border: "1px solid var(--semantic-error-line)",
         borderRadius: 8,
-        color: "#ff4757",
+        color: "var(--semantic-error)",
         fontSize: 13,
         marginBottom: 12,
       }}
@@ -117,7 +118,7 @@ function ErrorBox({ message }: { message: string | null }) {
 
 function EmptyState({ text }: { text?: string }) {
   return (
-    <div style={{ textAlign: "center", padding: 40, color: "#666" }}>
+    <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>
       {text || "Nothing here yet."}
     </div>
   );
@@ -179,13 +180,8 @@ function ThreadList({
   onPage: (page: number) => void;
 }) {
   return (
-    <div style={{ ...styles.card, flex: "0 0 400px", overflow: "auto", maxHeight: "80vh" }}>
-      <div style={{ ...styles.cardTitle, justifyContent: "space-between" }}>
-        <span>💬 Threads</span>
-        <button style={styles.buttonSecondary} onClick={onRefresh}>
-          Refresh
-        </button>
-      </div>
+    <Panel style={{ ...styles.card, flex: "0 0 400px", overflow: "auto", maxHeight: "80vh" }}>
+      <SectionHeader icon="💬" title="Threads" action={<Button variant="secondary" style={styles.buttonSecondary} onClick={onRefresh}>Refresh</Button>} />
 
       {/* Filters */}
       <div style={{ ...styles.row, marginBottom: 8, flexWrap: "wrap" }}>
@@ -227,8 +223,7 @@ function ThreadList({
                 borderRadius: 8,
                 marginBottom: 6,
                 cursor: "pointer",
-                background: selectedId === t.id ? "#00d4aa18" : "#111",
-                border: selectedId === t.id ? "1px solid #00d4aa44" : "1px solid #222",
+                ...(selectedId === t.id ? styles.chipSelected : styles.chipUnselected),
                 transition: "all 0.15s",
               }}
             >
@@ -240,18 +235,18 @@ function ThreadList({
                   marginBottom: 4,
                 }}
               >
-                <span style={{ fontWeight: 600, fontSize: 14, color: "#fff" }}>
+                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>
                   {t.subject || `Thread #${t.id}`}
                 </span>
-                <span style={{ fontSize: 11, color: "#666" }}>{timeAgo(t.lastMessageAt || t.createdAt)}</span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{timeAgo(t.lastMessageAt || t.createdAt)}</span>
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                <Badge label={t.threadType} colorMap={{ REQUEST: "#00a8e8", APPROVAL: "#ffa500", SUPPORT: "#ff4757", GENERAL: "#888" }} />
+                <Badge label={t.threadType} colorMap={{ REQUEST: "var(--semantic-info)", APPROVAL: "var(--semantic-warning)", SUPPORT: "var(--semantic-error)", GENERAL: "var(--text-muted)" }} />
                 <Badge label={t.status} colorMap={statusColor} />
                 <Badge label={t.priority} colorMap={priorityColor} />
               </div>
               {t.relatedEntityType && (
-                <div style={{ fontSize: 11, color: "#666", marginTop: 4 }}>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
                   {t.relatedEntityType} #{t.relatedEntityId}
                 </div>
               )}
@@ -268,7 +263,7 @@ function ThreadList({
               >
                 ← Prev
               </button>
-              <span style={{ alignSelf: "center", fontSize: 12, color: "#888" }}>
+              <span style={{ alignSelf: "center", fontSize: 12, color: "var(--text-muted)" }}>
                 Page {pagination.page} of {pagination.totalPages || "?"}
               </span>
               <button
@@ -282,7 +277,7 @@ function ThreadList({
           )}
         </>
       )}
-    </div>
+    </Panel>
   );
 }
 
@@ -340,13 +335,13 @@ function CreateThreadForm({ onCreated }: { onCreated: () => void }) {
 
   if (!open)
     return (
-      <button style={{ ...styles.button, marginBottom: 12, width: "100%" }} onClick={() => setOpen(true)}>
+      <Button variant="primary" style={{ ...styles.button, marginBottom: 12, width: "100%" }} onClick={() => setOpen(true)}>
         + New Thread
-      </button>
+      </Button>
     );
 
   return (
-    <div style={{ ...styles.card, border: "1px solid #00d4aa44", marginBottom: 12 }}>
+    <div style={{ ...styles.card, border: "1px solid var(--line-strong)", marginBottom: 12 }}>
       <div style={styles.cardTitle}>New Thread</div>
       <ErrorBox message={error} />
 
@@ -463,7 +458,7 @@ function ThreadDetail({
   };
 
   return (
-    <div style={{ marginBottom: 16, padding: "12px 16px", background: "#111", borderRadius: 8, border: "1px solid #222" }}>
+    <div style={{ marginBottom: 16, padding: "12px 16px", background: "var(--surface-panel)", borderRadius: 8, border: "1px solid var(--line-soft)" }}>
       <ErrorBox message={error} />
       {editing ? (
         <>
@@ -489,8 +484,8 @@ function ThreadDetail({
       ) : (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
           <div>
-            <span style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>{thread.subject || `Thread #${thread.id}`}</span>
-            <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
+            <span style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>{thread.subject || `Thread #${thread.id}`}</span>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
               Created {formatDate(thread.createdAt)} · by account #{thread.createdByAccountId}
               {thread.assignedToAccountId ? ` · assigned → #${thread.assignedToAccountId}` : ""}
             </div>
@@ -498,8 +493,8 @@ function ThreadDetail({
           <div style={{ display: "flex", gap: 6 }}>
             <Badge label={thread.status} colorMap={statusColor} />
             <Badge label={thread.priority} colorMap={priorityColor} />
-            <button style={styles.buttonSecondary} onClick={startEdit}>Edit</button>
-            <button style={{ ...styles.buttonSecondary, ...styles.buttonDanger }} onClick={remove}>Delete</button>
+            <Button variant="secondary" style={styles.buttonSecondary} onClick={startEdit}>Edit</Button>
+            <Button variant="destructive" style={{ ...styles.buttonSecondary, ...styles.buttonDanger }} onClick={remove}>Delete</Button>
           </div>
         </div>
       )}
@@ -606,19 +601,19 @@ function MessagesPanel({ threadId }: { threadId: number }) {
                 padding: "10px 14px",
                 borderRadius: 8,
                 marginBottom: 6,
-                background: m.messageType === "SYSTEM" ? "#1a1a2e" : "#111",
-                border: "1px solid #222",
+                background: m.messageType === "SYSTEM" ? "var(--semantic-info-soft)" : "var(--surface-panel)",
+                border: "1px solid var(--line-soft)",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#00d4aa", fontWeight: 600 }}>
+                <span style={{ fontSize: 12, color: "var(--accent-primary)", fontWeight: 600 }}>
                   Account #{m.senderAccountId}
                   <Badge
                     label={m.messageType}
-                    colorMap={{ TEXT: "#00d4aa", SYSTEM: "#ffa500", ACTION: "#00a8e8", TEMPLATE: "#888" }}
+                    colorMap={{ TEXT: "var(--accent-primary)", SYSTEM: "var(--semantic-warning)", ACTION: "var(--semantic-info)", TEMPLATE: "var(--text-muted)" }}
                   />
                 </span>
-                <span style={{ fontSize: 11, color: "#555" }}>{formatDate(m.createdAt)}</span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{formatDate(m.createdAt)}</span>
               </div>
 
               {editingId === m.id ? (
@@ -632,7 +627,7 @@ function MessagesPanel({ threadId }: { threadId: number }) {
                   <button style={styles.buttonSecondary} onClick={() => setEditingId(null)}>✕</button>
                 </div>
               ) : (
-                <div style={{ fontSize: 14, color: "#ddd", whiteSpace: "pre-wrap" }}>{m.body}</div>
+                <div style={{ fontSize: 14, color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>{m.body}</div>
               )}
 
               {/* Attachments inline */}
@@ -649,7 +644,7 @@ function MessagesPanel({ threadId }: { threadId: number }) {
                   Edit
                 </button>
                 <button
-                  style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px", color: "#ff4757" }}
+                  style={{ ...styles.buttonDanger, fontSize: 11, padding: "3px 8px" }}
                   onClick={() => deleteMsg(m.id)}
                 >
                   Delete
@@ -666,7 +661,7 @@ function MessagesPanel({ threadId }: { threadId: number }) {
           <button style={styles.buttonSecondary} disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
             ← Prev
           </button>
-          <span style={{ alignSelf: "center", fontSize: 12, color: "#888" }}>
+          <span style={{ alignSelf: "center", fontSize: 12, color: "var(--text-muted)" }}>
             Page {page}{pagination.totalPages ? ` of ${pagination.totalPages}` : ""}
           </span>
           <button style={styles.buttonSecondary} disabled={page >= (pagination.totalPages || 999)} onClick={() => setPage((p) => p + 1)}>
@@ -676,7 +671,7 @@ function MessagesPanel({ threadId }: { threadId: number }) {
       )}
 
       {/* Compose */}
-      <div style={{ borderTop: "1px solid #333", paddingTop: 12 }}>
+      <div style={{ borderTop: "1px solid var(--line-soft)", paddingTop: 12 }}>
         <div style={styles.row}>
           <Field label="Sender Account ID">
             <input style={styles.input} type="number" value={senderAccountId} onChange={(e) => setSenderAccountId(e.target.value)} placeholder="e.g. 1" />
@@ -742,7 +737,7 @@ function AttachmentList({ threadId, messageId }: { threadId: number; messageId: 
   if (items === null) {
     return (
       <button
-        style={{ fontSize: 11, color: "#00a8e8", background: "none", border: "none", cursor: "pointer", padding: "2px 0", marginTop: 4 }}
+        style={{ fontSize: 11, color: "var(--semantic-info)", background: "none", border: "none", cursor: "pointer", padding: "2px 0", marginTop: 4 }}
         onClick={fetch_}
       >
         📎 Load attachments
@@ -753,7 +748,7 @@ function AttachmentList({ threadId, messageId }: { threadId: number; messageId: 
   return (
     <div style={{ marginTop: 4 }}>
       <div
-        style={{ fontSize: 11, color: "#00a8e8", cursor: "pointer", marginBottom: 4 }}
+        style={{ fontSize: 11, color: "var(--semantic-info)", cursor: "pointer", marginBottom: 4 }}
         onClick={() => setExpanded((e) => !e)}
       >
         📎 {items.length} attachment{items.length !== 1 ? "s" : ""} {expanded ? "▾" : "▸"}
@@ -765,27 +760,27 @@ function AttachmentList({ threadId, messageId }: { threadId: number; messageId: 
               key={a.id}
               style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "4px 8px", background: "#0d1117", borderRadius: 4, marginBottom: 2, fontSize: 12,
+                padding: "4px 8px", background: "var(--surface-elevated)", borderRadius: 4, marginBottom: 2, fontSize: 12,
               }}
             >
               <span>
                 {a.fileName || "file"}{" "}
-                <span style={{ color: "#666" }}>({a.contentType}, {a.fileSizeBytes ?? a.sizeBytes}B)</span>
+                <span style={{ color: "var(--text-muted)" }}>({a.contentType}, {a.fileSizeBytes ?? a.sizeBytes}B)</span>
               </span>
               <div style={{ display: "flex", gap: 4 }}>
                 {(a.storageUrl || a.downloadUrl) && (
-                  <a href={a.storageUrl || a.downloadUrl} target="_blank" rel="noreferrer" style={{ color: "#00d4aa", fontSize: 11 }}>
+                  <a href={a.storageUrl || a.downloadUrl} target="_blank" rel="noreferrer" style={{ color: "var(--accent-primary)", fontSize: 11 }}>
                     ↓
                   </a>
                 )}
-                <button style={{ background: "none", border: "none", color: "#ff4757", cursor: "pointer", fontSize: 11 }} onClick={() => remove(a.id)}>
+                <button style={{ ...styles.buttonDanger, fontSize: 11, padding: "2px 8px" }} onClick={() => remove(a.id)}>
                   ✕
                 </button>
               </div>
             </div>
           ))}
           {showAdd ? (
-            <div style={{ background: "#0d1117", padding: 8, borderRadius: 6, marginTop: 4 }}>
+            <div style={{ background: "var(--surface-elevated)", padding: 8, borderRadius: 6, marginTop: 4 }}>
               <input style={{ ...styles.input, fontSize: 12 }} value={form.fileName} onChange={(e) => setForm((f) => ({ ...f, fileName: e.target.value }))} placeholder="File name" />
               <input style={{ ...styles.input, fontSize: 12 }} value={form.contentType} onChange={(e) => setForm((f) => ({ ...f, contentType: e.target.value }))} placeholder="Content type" />
               <input style={{ ...styles.input, fontSize: 12 }} value={form.storageKey} onChange={(e) => setForm((f) => ({ ...f, storageKey: e.target.value }))} placeholder="Storage key" />
@@ -881,7 +876,7 @@ function ParticipantsPanel({ threadId }: { threadId: number }) {
       <ErrorBox message={error} />
 
       {showAdd && (
-        <div style={{ background: "#0d1117", padding: 10, borderRadius: 6, marginBottom: 10 }}>
+        <div style={{ background: "var(--surface-elevated)", padding: 10, borderRadius: 6, marginBottom: 10 }}>
           <div style={styles.row}>
             <Field label="Account ID">
               <input style={styles.input} type="number" value={addForm.accountId} onChange={(e) => setAddForm((f) => ({ ...f, accountId: e.target.value }))} placeholder="e.g. 1" />
@@ -923,7 +918,7 @@ function ParticipantsPanel({ threadId }: { threadId: number }) {
                     {editId === acctId ? (
                       <Select value={editForm.role || p.role} onChange={(v) => setEditForm((f) => ({ ...f, role: v }))} options={["OWNER", "ADMIN", "MEMBER", "OBSERVER"]} placeholder="—" />
                     ) : (
-                      <Badge label={p.role || "—"} colorMap={{ OWNER: "#ff4757", ADMIN: "#ffa500", MEMBER: "#00d4aa", OBSERVER: "#888" }} />
+                      <Badge label={p.role || "—"} colorMap={{ OWNER: "var(--semantic-error)", ADMIN: "var(--semantic-warning)", MEMBER: "var(--accent-primary)", OBSERVER: "var(--text-muted)" }} />
                     )}
                   </td>
                   <td style={styles.td}>{p.muted ? "🔇" : "🔔"}</td>
@@ -944,7 +939,7 @@ function ParticipantsPanel({ threadId }: { threadId: number }) {
                           Edit
                         </button>
                         <button
-                          style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px", color: "#ff4757" }}
+                          style={{ ...styles.buttonDanger, fontSize: 11, padding: "3px 8px" }}
                           onClick={() => removeParticipant(acctId!)}
                         >
                           ✕
@@ -1019,7 +1014,7 @@ function StatusEventsPanel({ threadId }: { threadId: number }) {
       <ErrorBox message={error} />
 
       {showAdd && (
-        <div style={{ background: "#0d1117", padding: 10, borderRadius: 6, marginBottom: 10 }}>
+        <div style={{ background: "var(--surface-elevated)", padding: 10, borderRadius: 6, marginBottom: 10 }}>
           <div style={styles.row}>
             <Field label="New Status">
               <Select value={form.toStatus} onChange={(v) => setForm((f) => ({ ...f, toStatus: v }))} options={STATUSES} placeholder="Select" />
@@ -1049,16 +1044,16 @@ function StatusEventsPanel({ threadId }: { threadId: number }) {
               key={ev.id}
               style={{
                 display: "flex", justifyContent: "space-between", padding: "8px 12px",
-                background: "#111", borderRadius: 6, marginBottom: 4, border: "1px solid #222", alignItems: "center",
+                background: "var(--surface-panel)", borderRadius: 6, marginBottom: 4, border: "1px solid var(--line-soft)", alignItems: "center",
               }}
             >
               <div>
                 <Badge label={ev.fromStatus || "—"} colorMap={statusColor} />
-                <span style={{ margin: "0 6px", color: "#666" }}>→</span>
+                <span style={{ margin: "0 6px", color: "var(--text-muted)" }}>→</span>
                 <Badge label={ev.toStatus} colorMap={statusColor} />
-                {ev.eventReason && <span style={{ fontSize: 12, color: "#888", marginLeft: 8 }}>"{ev.eventReason}"</span>}
+                {ev.eventReason && <span style={{ fontSize: 12, color: "var(--text-muted)", marginLeft: 8 }}>"{ev.eventReason}"</span>}
               </div>
-              <span style={{ fontSize: 11, color: "#555" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
                 by #{ev.actorAccountId} · {formatDate(ev.createdAt)}
               </span>
             </div>
@@ -1183,7 +1178,7 @@ function TemplatesPanel() {
       </div>
       {lookupResult != null && (
         <div style={{ ...styles.response, marginBottom: 12, maxHeight: 150 }}>
-          <pre style={{ margin: 0, color: "#c9d1d9" }}>{JSON.stringify(lookupResult, null, 2)}</pre>
+          <pre style={{ margin: 0, color: "var(--text-secondary)" }}>{JSON.stringify(lookupResult, null, 2)}</pre>
         </div>
       )}
 
@@ -1196,7 +1191,7 @@ function TemplatesPanel() {
 
       {/* Create form */}
       {showCreate && (
-        <div style={{ background: "#0d1117", padding: 12, borderRadius: 6, marginBottom: 12 }}>
+        <div style={{ background: "var(--surface-elevated)", padding: 12, borderRadius: 6, marginBottom: 12 }}>
           <div style={styles.row}>
             <Field label="Key">
               <input style={styles.input} value={form.templateKey} onChange={(e) => setForm((f) => ({ ...f, templateKey: e.target.value }))} placeholder="UPPERCASE_WITH_UNDERSCORES" />
@@ -1246,7 +1241,7 @@ function TemplatesPanel() {
                   <td style={styles.td}>{t.id}</td>
                   <td style={{ ...styles.td, fontFamily: "monospace", fontSize: 12 }}>{t.templateKey || "—"}</td>
                   <td style={styles.td}>
-                    <Badge label={t.category || "—"} colorMap={{ SUPPORT: "#ff4757", APPROVAL: "#ffa500", REQUEST: "#00a8e8", GENERAL: "#888" }} />
+                    <Badge label={t.category || "—"} colorMap={{ SUPPORT: "var(--semantic-error)", APPROVAL: "var(--semantic-warning)", REQUEST: "var(--semantic-info)", GENERAL: "var(--text-muted)" }} />
                   </td>
                   <td style={styles.td}>
                     {editId === t.id ? (
@@ -1271,7 +1266,7 @@ function TemplatesPanel() {
                           Edit
                         </button>
                         <button
-                          style={{ ...styles.buttonSecondary, fontSize: 11, padding: "3px 8px", color: "#ff4757" }}
+                          style={{ ...styles.buttonDanger, fontSize: 11, padding: "3px 8px" }}
                           onClick={() => remove(t.id)}
                         >
                           ✕
@@ -1287,7 +1282,7 @@ function TemplatesPanel() {
           {pagination && (
             <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 12 }}>
               <button style={styles.buttonSecondary} disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>← Prev</button>
-              <span style={{ alignSelf: "center", fontSize: 12, color: "#888" }}>Page {page}{pagination.totalPages ? ` of ${pagination.totalPages}` : ""}</span>
+              <span style={{ alignSelf: "center", fontSize: 12, color: "var(--text-muted)" }}>Page {page}{pagination.totalPages ? ` of ${pagination.totalPages}` : ""}</span>
               <button style={styles.buttonSecondary} disabled={page >= (pagination.totalPages || 999)} onClick={() => setPage((p) => p + 1)}>Next →</button>
             </div>
           )}
@@ -1349,16 +1344,14 @@ export default function MessagingTab() {
       {/* sub-nav */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         {SUB_TABS.map((st) => (
-          <button
+          <Chip
             key={st.id}
-            style={{
-              ...styles.buttonSecondary,
-              ...(subTab === st.id ? { background: "#00d4aa22", color: "#00d4aa", borderColor: "#00d4aa44" } : {}),
-            }}
+            selected={subTab === st.id}
+            style={{ ...styles.buttonSecondary }}
             onClick={() => setSubTab(st.id)}
           >
             {st.label}
-          </button>
+          </Chip>
         ))}
       </div>
 
@@ -1401,16 +1394,14 @@ export default function MessagingTab() {
                       { id: "participants", label: "👥 Participants" },
                       { id: "status", label: "📋 Status History" },
                     ].map((dt) => (
-                      <button
+                      <Chip
                         key={dt.id}
-                        style={{
-                          ...styles.buttonSecondary,
-                          ...(detailTab === dt.id ? { background: "#00d4aa22", color: "#00d4aa", borderColor: "#00d4aa44" } : {}),
-                        }}
+                        selected={detailTab === dt.id}
+                        style={{ ...styles.buttonSecondary }}
                         onClick={() => setDetailTab(dt.id)}
                       >
                         {dt.label}
-                      </button>
+                      </Chip>
                     ))}
                   </div>
 
@@ -1419,11 +1410,11 @@ export default function MessagingTab() {
                   {detailTab === "status" && <StatusEventsPanel threadId={selectedThread.id} />}
                 </>
               ) : (
-                <div style={{ ...styles.card, textAlign: "center", padding: 60, color: "#666" }}>
+                <Panel style={{ ...styles.card, textAlign: "center", padding: 60, color: "var(--text-muted)" }}>
                   <div style={{ fontSize: 48, marginBottom: 16 }}>💬</div>
                   <div style={{ fontSize: 16, fontWeight: 500 }}>Select a thread to view messages</div>
                   <div style={{ fontSize: 13, marginTop: 8 }}>Or create a new thread to get started</div>
-                </div>
+                </Panel>
               )}
             </div>
           </div>
@@ -1432,3 +1423,7 @@ export default function MessagingTab() {
     </div>
   );
 }
+
+
+
+

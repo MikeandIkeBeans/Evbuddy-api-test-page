@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import styles from "../styles";
 import { apiCall } from "../utils/api";
 import type { Thread, Message } from "../types";
+import { Button, Chip, Panel, StatusPill } from "./primitives";
 
 /* ── Constants & Helpers ───────────────────────────────────────────────── */
 
@@ -17,11 +18,11 @@ const CATEGORY_TO_TYPE: Record<string, string> = {
 
 /** Status badge styling keyed on thread status */
 const STATUS_DISPLAY: Record<string, { label: string; bg: string; color: string; border: string }> = {
-  OPEN: { label: "OPEN", bg: "#00d4aa22", color: "#00d4aa", border: "#00d4aa55" },
-  PENDING: { label: "LIVE", bg: "#ffa50022", color: "#ffa500", border: "#ffa50055" },
-  APPROVED: { label: "DONE", bg: "#88888822", color: "#999", border: "#88888855" },
-  REJECTED: { label: "CLOSED", bg: "#ff475722", color: "#ff4757", border: "#ff475755" },
-  CLOSED: { label: "DONE", bg: "#88888822", color: "#999", border: "#88888855" },
+  OPEN: { label: "OPEN", bg: "var(--semantic-success-soft)", color: "var(--accent-primary)", border: "var(--line-strong)" },
+  PENDING: { label: "LIVE", bg: "var(--semantic-warning-soft)", color: "var(--semantic-warning)", border: "var(--semantic-warning-line)" },
+  APPROVED: { label: "DONE", bg: "var(--semantic-neutral-soft)", color: "var(--text-muted)", border: "var(--semantic-neutral-line)" },
+  REJECTED: { label: "CLOSED", bg: "var(--semantic-error-soft)", color: "var(--semantic-error)", border: "var(--semantic-error-line)" },
+  CLOSED: { label: "DONE", bg: "var(--semantic-neutral-soft)", color: "var(--text-muted)", border: "var(--semantic-neutral-line)" },
 };
 
 /** Pretty thread title – uses subject or builds from threadType + relatedEntityType */
@@ -68,7 +69,7 @@ function threadSnippet(t: Thread, lastMsg: { body?: string } | undefined) {
 
 function Spinner() {
   return (
-    <div style={{ textAlign: "center", padding: 40, color: "#888" }}>
+    <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>
       Loading…
     </div>
   );
@@ -76,7 +77,7 @@ function Spinner() {
 
 function Empty({ text }: { text?: string }) {
   return (
-    <div style={{ textAlign: "center", padding: 48, color: "#666" }}>
+    <div style={{ textAlign: "center", padding: 48, color: "var(--text-muted)" }}>
       {text || "No messages yet."}
     </div>
   );
@@ -88,10 +89,10 @@ function ErrorBox({ message }: { message: string | null }) {
     <div
       style={{
         padding: 12,
-        background: "#ff475715",
-        border: "1px solid #ff475744",
+        background: "var(--semantic-error-soft)",
+        border: "1px solid var(--semantic-error-line)",
         borderRadius: 8,
-        color: "#ff4757",
+        color: "var(--semantic-error)",
         fontSize: 13,
         marginBottom: 12,
       }}
@@ -135,7 +136,7 @@ function PillGroup({ items, active, onChange, style: outerStyle }: { items: stri
         gap: 0,
         borderRadius: 10,
         overflow: "hidden",
-        border: "1px solid #333",
+        border: "1px solid var(--line-soft)",
         ...outerStyle,
       }}
     >
@@ -154,10 +155,10 @@ function PillGroup({ items, active, onChange, style: outerStyle }: { items: stri
               cursor: "pointer",
               transition: "all 0.15s",
               background: isActive
-                ? "linear-gradient(135deg, #00d4aa, #00a8e8)"
-                : "#1a1a1a",
-              color: isActive ? "#000" : "#888",
-              borderRight: "1px solid #333",
+                ? "var(--bg-recipe-dark-to-accent)"
+                : "var(--surface-panel)",
+              color: isActive ? "var(--bg-primary)" : "var(--text-muted)",
+              borderRight: "1px solid var(--line-soft)",
             }}
           >
             {item}
@@ -179,8 +180,8 @@ function ThreadCard({ thread, lastMessage, onClick }: { thread: Thread; lastMess
     <div
       onClick={onClick}
       style={{
-        background: "#111",
-        border: "1px solid #2a2a2a",
+        background: "var(--surface-panel)",
+        border: "1px solid var(--line-soft)",
         borderRadius: 12,
         padding: "14px 16px",
         marginBottom: 10,
@@ -188,12 +189,12 @@ function ThreadCard({ thread, lastMessage, onClick }: { thread: Thread; lastMess
         transition: "border-color 0.15s, background 0.15s",
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "#00d4aa44";
-        e.currentTarget.style.background = "#161616";
+        e.currentTarget.style.borderColor = "var(--line-strong)";
+        e.currentTarget.style.background = "var(--surface-elevated)";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "#2a2a2a";
-        e.currentTarget.style.background = "#111";
+        e.currentTarget.style.borderColor = "var(--line-soft)";
+        e.currentTarget.style.background = "var(--surface-panel)";
       }}
     >
       {/* Row 1: title + time */}
@@ -205,10 +206,10 @@ function ThreadCard({ thread, lastMessage, onClick }: { thread: Thread; lastMess
           marginBottom: 6,
         }}
       >
-        <span style={{ fontWeight: 700, fontSize: 15, color: "#fff", flex: 1 }}>
+        <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)", flex: 1 }}>
           {title}
         </span>
-        <span style={{ fontSize: 12, color: "#666", whiteSpace: "nowrap", marginLeft: 12 }}>
+        <span style={{ fontSize: 12, color: "var(--text-muted)", whiteSpace: "nowrap", marginLeft: 12 }}>
           {time}
         </span>
       </div>
@@ -224,7 +225,7 @@ function ThreadCard({ thread, lastMessage, onClick }: { thread: Thread; lastMess
         <span
           style={{
             fontSize: 13,
-            color: "#999",
+            color: "var(--text-muted)",
             flex: 1,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -313,7 +314,7 @@ function ThreadDetailView({ thread, onBack }: { thread: Thread; onBack: () => vo
           alignItems: "center",
           gap: 12,
           paddingBottom: 14,
-          borderBottom: "1px solid #222",
+          borderBottom: "1px solid var(--line-soft)",
           marginBottom: 14,
         }}
       >
@@ -329,10 +330,10 @@ function ThreadDetailView({ thread, onBack }: { thread: Thread; onBack: () => vo
           ←
         </button>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, fontSize: 16, color: "#fff" }}>
+          <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>
             {threadTitle(thread)}
           </div>
-          <div style={{ fontSize: 12, color: "#666" }}>
+          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
             {thread.threadType} · {thread.status}
             {thread.priority !== "NORMAL" && ` · ${thread.priority}`}
           </div>
@@ -365,8 +366,8 @@ function ThreadDetailView({ thread, onBack }: { thread: Thread; onBack: () => vo
                 borderRadius: 10,
                 marginBottom: 8,
                 background:
-                  m.messageType === "SYSTEM" ? "#1a1a2e" : "#1a1a1a",
-                border: "1px solid #222",
+                  m.messageType === "SYSTEM" ? "var(--semantic-info-soft)" : "var(--surface-panel)",
+                border: "1px solid var(--line-soft)",
               }}
             >
               <div
@@ -377,18 +378,18 @@ function ThreadDetailView({ thread, onBack }: { thread: Thread; onBack: () => vo
                 }}
               >
                 <span
-                  style={{ fontSize: 12, fontWeight: 600, color: "#00d4aa" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--accent-primary)" }}
                 >
                   Account #{m.senderAccountId}
                 </span>
-                <span style={{ fontSize: 11, color: "#555" }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
                   {timeAgo(m.createdAt)}
                 </span>
               </div>
               <div
                 style={{
                   fontSize: 14,
-                  color: "#ddd",
+                  color: "var(--text-secondary)",
                   whiteSpace: "pre-wrap",
                 }}
               >
@@ -404,7 +405,7 @@ function ThreadDetailView({ thread, onBack }: { thread: Thread; onBack: () => vo
         style={{
           display: "flex",
           gap: 8,
-          borderTop: "1px solid #222",
+          borderTop: "1px solid var(--line-soft)",
           paddingTop: 12,
         }}
       >
@@ -479,7 +480,7 @@ function RequestMobileChargeForm({ onCreated, onCancel }: { onCreated: () => voi
   };
 
   return (
-    <div style={{ ...styles.card, border: "1px solid #00d4aa44" }}>
+    <div style={{ ...styles.card, border: "1px solid var(--line-strong)" }}>
       <div style={styles.cardTitle}>⚡ Request Mobile Charge</div>
       <ErrorBox message={error} />
 
@@ -546,7 +547,7 @@ function BottomNav({ active, onChange }: { active: string; onChange: (id: string
       style={{
         display: "flex",
         justifyContent: "space-around",
-        borderTop: "1px solid #333",
+        borderTop: "1px solid var(--line-soft)",
         paddingTop: 10,
         marginTop: 16,
       }}
@@ -565,7 +566,7 @@ function BottomNav({ active, onChange }: { active: string; onChange: (id: string
               flexDirection: "column",
               alignItems: "center",
               gap: 2,
-              color: isActive ? "#00d4aa" : "#666",
+              color: isActive ? "var(--accent-primary)" : "var(--text-muted)",
               fontSize: 11,
               fontWeight: isActive ? 700 : 500,
               transition: "color 0.15s",
@@ -652,13 +653,12 @@ export default function DriverInboxTab() {
 
   /* ── render ─────────────────────────────────────────────────────────── */
   return (
-    <div
+    <Panel
+      variant="dark"
       style={{
         maxWidth: 440,
         margin: "0 auto",
-        background: "#0f0f0f",
         borderRadius: 20,
-        border: "1px solid #2a2a2a",
         padding: "20px 16px 12px",
         minHeight: 680,
         display: "flex",
@@ -675,7 +675,7 @@ export default function DriverInboxTab() {
             style={{
               fontSize: 22,
               fontWeight: 800,
-              color: "#fff",
+              color: "var(--text-primary)",
               margin: "0 0 14px",
             }}
           >
@@ -702,7 +702,8 @@ export default function DriverInboxTab() {
           />
 
           {/* Action button */}
-          <button
+          <Button
+            variant="primary"
             style={{
               ...styles.button,
               width: "100%",
@@ -715,7 +716,7 @@ export default function DriverInboxTab() {
             onClick={() => setShowRequestForm((v) => !v)}
           >
             + Request Mobile Charge
-          </button>
+          </Button>
 
           {/* Request form (collapsible) */}
           {showRequestForm && (
@@ -752,6 +753,9 @@ export default function DriverInboxTab() {
           <BottomNav active={navTab} onChange={setNavTab} />
         </>
       )}
-    </div>
+    </Panel>
   );
 }
+
+
+

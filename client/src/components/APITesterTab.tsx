@@ -3,10 +3,11 @@ import styles from "../styles";
 import { apiCall } from "../utils/api";
 import { ResponseDisplay } from "./ResponseDisplay";
 import { ApiResponse, HttpMethod } from "../types";
+import { Button, Panel, SectionHeader } from "./primitives";
 
 export default function APITesterTab() {
   const [method, setMethod] = useState("GET");
-  const [endpoint, setEndpoint] = useState("/api/health");
+  const [endpoint, setEndpoint] = useState("/health");
   const [body, setBody] = useState("");
   const [userId, setUserId] = useState("");
   const [response, setResponse] = useState<ApiResponse | null>(null);
@@ -39,8 +40,8 @@ export default function APITesterTab() {
 
   return (
     <div style={styles.grid}>
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>API Tester</div>
+      <Panel>
+        <SectionHeader title="API Tester" />
 
         <div style={styles.row}>
           <div>
@@ -75,17 +76,18 @@ export default function APITesterTab() {
           </>
         )}
 
-        <button style={styles.button} onClick={sendRequest}>Send Request</button>
+        <Button variant="primary" onClick={sendRequest}>Send Request</Button>
 
         <ResponseDisplay response={response} loading={loading} />
-      </div>
+      </Panel>
 
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>Quick Actions</div>
+      <Panel>
+        <SectionHeader title="Quick Actions" />
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {quickEndpoints.map((ep, i) => (
-            <button
+            <Button
               key={i}
+              variant="secondary"
               style={styles.buttonSecondary}
               onClick={() => {
                 setMethod(ep.method);
@@ -93,18 +95,19 @@ export default function APITesterTab() {
               }}
             >
               <span style={{
-                color: ep.method === "GET" ? "#00d4aa" :
-                       ep.method === "POST" ? "#00a8e8" : "#ffa500",
+                color: ep.method === "GET" ? "var(--accent-primary)" :
+                       ep.method === "POST" ? "var(--semantic-info)" : "var(--semantic-warning)",
                 marginRight: 8,
                 fontWeight: 600
               }}>
                 {ep.method}
               </span>
               {ep.label}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }
+

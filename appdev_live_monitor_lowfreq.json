@@ -1,0 +1,1214 @@
+{
+  "generated_at": "2026-04-07T09:14:46.663626+00:00",
+  "rounds": 72,
+  "interval": 300,
+  "targets": [
+    {
+      "name": "users_full",
+      "url": "http://appdev.evbuddy.net:9000/user"
+    },
+    {
+      "name": "vehicles_full",
+      "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles"
+    },
+    {
+      "name": "host_sites_full",
+      "url": "http://appdev.evbuddy.net:9004/host-sites"
+    },
+    {
+      "name": "services_catalog",
+      "url": "http://appdev.evbuddy.net:9026/services"
+    },
+    {
+      "name": "messaging_threads",
+      "url": "http://appdev.evbuddy.net:9011/threads"
+    },
+    {
+      "name": "messaging_templates",
+      "url": "http://appdev.evbuddy.net:9011/templates"
+    },
+    {
+      "name": "ocpp_charge_points",
+      "url": "http://appdev.evbuddy.net:9029/api/charge-points"
+    },
+    {
+      "name": "ocpp_connectors",
+      "url": "http://appdev.evbuddy.net:9029/api/connectors"
+    }
+  ],
+  "history": [
+    {
+      "timestamp": "2026-04-07T07:54:14.754989+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T07:59:16.569862+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:04:18.443714+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:09:20.350458+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:14:22.195854+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:19:24.150853+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:24:26.040372+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:29:27.951463+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:34:29.810492+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:39:31.732101+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:44:33.537157+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:49:35.449612+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:54:37.348843+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T08:59:39.148598+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T09:04:41.102501+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T09:09:43.004980+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T09:14:44.793564+00:00",
+      "checks": [
+        {
+          "name": "users_full",
+          "url": "http://appdev.evbuddy.net:9000/user",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 125
+        },
+        {
+          "name": "vehicles_full",
+          "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 22
+        },
+        {
+          "name": "host_sites_full",
+          "url": "http://appdev.evbuddy.net:9004/host-sites",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 394
+        },
+        {
+          "name": "services_catalog",
+          "url": "http://appdev.evbuddy.net:9026/services",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 7
+        },
+        {
+          "name": "messaging_threads",
+          "url": "http://appdev.evbuddy.net:9011/threads",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 20
+        },
+        {
+          "name": "messaging_templates",
+          "url": "http://appdev.evbuddy.net:9011/templates",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 14
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 19
+        },
+        {
+          "name": "ocpp_connectors",
+          "url": "http://appdev.evbuddy.net:9029/api/connectors",
+          "attempts": 1,
+          "status": 200,
+          "ok": true,
+          "count": 47
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 # EVBuddy API Overview
 
-This repository is a Flask proxy and demo dashboard for EVBuddy services.
+This repository is a Flask proxy dashboard for EVBuddy services.
 Most `/api/*` routes forward requests to upstream Spring Boot services on
-`dev.evbuddy.net`, while `/v1/*` routes cover charging and V2V demo flows.
+`appdev.evbuddy.net`, while `/v1/*` routes cover charging and V2V flows.
 
 ## Base URLs
 

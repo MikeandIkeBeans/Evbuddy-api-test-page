@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-04-09T19:42:41.651821+00:00",
+  "root": "C:\\Users\\Mike\\evbuddy homepage",
+  "includeStress": true,
+  "iterationsRequested": 1,
+  "aborted": false,
+  "iterations": [
+    {
+      "iteration": 1,
+      "passed": true,
+      "results": [
+        {
+          "label": "backend-pytest-default",
+          "command": [
+            "C:\\Users\\Mike\\evbuddy homepage\\.venv\\Scripts\\python.exe",
+            "-m",
+            "pytest",
+            "-m",
+            "not stress",
+            "-ra"
+          ],
+          "cwd": "C:\\Users\\Mike\\evbuddy homepage",
+          "returncode": 0,
+          "elapsedSec": 2.311,
+          "ok": true
+        },
+        {
+          "label": "backend-pytest-stress",
+          "command": [
+            "C:\\Users\\Mike\\evbuddy homepage\\.venv\\Scripts\\python.exe",
+            "-m",
+            "pytest",
+            "-m",
+            "stress",
+            "-ra"
+          ],
+          "cwd": "C:\\Users\\Mike\\evbuddy homepage",
+          "returncode": 0,
+          "elapsedSec": 8.268,
+          "ok": true
+        },
+        {
+          "label": "frontend-vitest",
+          "command": [
+            "npm.cmd",
+            "run",
+            "test"
+          ],
+          "cwd": "C:\\Users\\Mike\\evbuddy homepage\\client",
+          "returncode": 0,
+          "elapsedSec": 2.022,
+          "ok": true
+        },
+        {
+          "label": "frontend-build",
+          "command": [
+            "npm.cmd",
+            "run",
+            "build"
+          ],
+          "cwd": "C:\\Users\\Mike\\evbuddy homepage\\client",
+          "returncode": 0,
+          "elapsedSec": 2.288,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "allPassed": true
+}

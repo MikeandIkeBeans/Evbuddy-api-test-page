@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
-import styles from "../styles";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "./feature-layout.css";
 import { EVBUDDY_API } from "../utils/api";
+import { Button, Panel, SectionHeader, StatusPill } from "./primitives";
 
 interface Charger {
   online?: boolean;
@@ -9,7 +10,6 @@ interface Charger {
   charge_point_serial_number?: string;
   firmware_version?: string;
   last_heartbeat?: string;
-  [key: string]: unknown;
 }
 
 interface Connector {
@@ -29,96 +29,132 @@ interface V2VSession {
   stop_reason?: string;
 }
 
+interface V2VStatusPayload {
+  success?: boolean;
+  charger?: Charger;
+  connectors?: Connector[];
+}
+
+interface V2VSessionsPayload {
+  success?: boolean;
+  sessions?: V2VSession[];
+}
+
 interface ActionResult {
-  type: string;
-  msg: string;
+  tone: "success" | "warning" | "error";
+  message: string;
+  detail?: string;
 }
 
 const CHARGE_POINT_ID = "EVB-V2V-001-JP";
+const TAB_NAV_EVENT = "evbuddy:navigate-tab";
 
-const STATUS_COLORS = {
-  Available: "#59a3ff",
-  Preparing: "#ffb967",
-  Charging: "#46d6b5",
-  SuspendedEV: "#ffb967",
-  SuspendedEVSE: "#ffb967",
-  Finishing: "#c4b5fd",
-  Faulted: "#ff7f88",
-  Unavailable: "#666",
-};
+type ConsoleTabId = "chargers" | "sessions";
 
-function statusColor(status: string): string {
-  return STATUS_COLORS[status as keyof typeof STATUS_COLORS] || "#888";
+function statusTone(status: string | undefined): "success" | "neutral" | "error" {
+  const normalized = (status || "").toLowerCase();
+  if (normalized === "charging") return "success";
+  if (normalized === "offline" || normalized === "faulted" || normalized === "unavailable") return "error";
+  return "neutral";
 }
 
-function timeAgo(ts: string | null | undefined): string {
-  if (!ts) return "—";
-  const diff = Math.floor((Date.now() - new Date(ts + "Z").getTime()) / 1000);
+function statusLabel(status: string | undefined): string {
+  if (!status) return "Unknown";
+  return status;
+}
+
+function isActiveConnector(status: string | undefined): boolean {
+  const normalized = (status || "").toLowerCase();
+  return normalized === "charging" || normalized === "preparing" || normalized === "suspendedev" || normalized === "suspendedevse";
+}
+
+function connectorSortRank(status: string | undefined): number {
+  const normalized = (status || "").toLowerCase();
+  if (normalized === "charging") return 0;
+  if (normalized === "preparing") return 1;
+  if (normalized === "available") return 2;
+  if (normalized === "suspendedev" || normalized === "suspendedevse") return 3;
+  if (normalized === "faulted" || normalized === "unavailable" || normalized === "offline") return 5;
+  return 4;
+}
+
+function ago(value: string | undefined): string {
+  if (!value) return "—";
+  const timestamp = new Date(value.endsWith("Z") ? value : `${value}Z`).getTime();
+  if (Number.isNaN(timestamp)) return "—";
+  const diff = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
   if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-function formatDuration(seconds: number | null | undefined): string {
-  if (!seconds && seconds !== 0) return "—";
-  if (seconds < 60) return `${seconds}s`;
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return s ? `${m}m ${s}s` : `${m}m`;
+function heartbeatAgeLabel(value: string | undefined): string {
+  const valueLabel = ago(value);
+  return valueLabel === "—" ? "Not detected" : valueLabel;
 }
 
-const btnBase = {
-  padding: "10px 18px",
-  border: "none",
-  borderRadius: 10,
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-  flex: 1,
-  textAlign: "center" as const,
-};
+function formatLastSeen(value: string | undefined): string {
+  if (!value) return "No heartbeat received";
+  const date = new Date(value.endsWith("Z") ? value : `${value}Z`);
+  if (Number.isNaN(date.getTime())) return "Unknown";
+  return date.toLocaleString();
+}
 
-const btnStart = {
-  ...btnBase,
-  background: "linear-gradient(135deg, #34d399, #10b981)",
-  color: "#fff",
-  boxShadow: "0 4px 14px rgba(16,185,129,0.3)",
-};
+function heartbeatState(value: string | undefined): "live" | "degraded" | "stale" | "unknown" {
+  if (!value) return "unknown";
+  const timestamp = new Date(value.endsWith("Z") ? value : `${value}Z`).getTime();
+  if (Number.isNaN(timestamp)) return "unknown";
+  const diff = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  if (diff <= 20) return "live";
+  if (diff <= 120) return "degraded";
+  return "stale";
+}
 
-const btnStop = {
-  ...btnBase,
-  background: "linear-gradient(135deg, #f87171, #ef4444)",
-  color: "#fff",
-  boxShadow: "0 4px 14px rgba(239,68,68,0.3)",
-};
+function heartbeatSignalLabel(state: "live" | "degraded" | "stale" | "unknown"): string {
+  if (state === "live") return "Active";
+  if (state === "degraded") return "Delayed";
+  if (state === "stale") return "Stale";
+  return "Missing";
+}
 
-const btnRefresh = {
-  ...btnBase,
-  background: "rgba(30,40,60,0.7)",
-  color: "var(--text-secondary)",
-  border: "1px solid var(--line-soft)",
-  flex: "none",
-  padding: "10px 14px",
-};
+function navigateToTab(tabId: ConsoleTabId): void {
+  window.dispatchEvent(new CustomEvent(TAB_NAV_EVENT, { detail: { tabId } }));
+}
 
-const btnSoftReset = {
-  ...btnBase,
-  flex: "none",
-  background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
-  color: "#1a1a1a",
-  padding: "8px 14px",
-  fontSize: 13,
-};
+function normalizeCommandMessage(payload: { success?: boolean; message?: string; error?: string; status?: string }): ActionResult {
+  const raw = `${payload.message || payload.error || payload.status || ""}`.trim();
+  const lower = raw.toLowerCase();
 
-const btnHardReset = {
-  ...btnBase,
-  flex: "none",
-  background: "linear-gradient(135deg, #fb923c, #ef4444)",
-  color: "#fff",
-  padding: "8px 14px",
-  fontSize: 13,
-};
+  if (payload.success) {
+    return {
+      tone: "success",
+      message: raw || "Command accepted",
+    };
+  }
+
+  if (lower.includes("not connected") || lower.includes("offline") || lower.includes("disconnected")) {
+    return {
+      tone: "error",
+      message: "Reset request could not be delivered",
+      detail: "Charger offline. No OCPP heartbeat detected.",
+    };
+  }
+
+  const warning = payload.status === "Rejected";
+  return {
+    tone: warning ? "warning" : "error",
+    message: raw || "Command failed",
+  };
+}
+
+function duration(value: number | undefined): string {
+  if (typeof value !== "number") return "—";
+  if (value < 60) return `${value}s`;
+  const m = Math.floor(value / 60);
+  const s = value % 60;
+  return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
 
 export default function V2VTab() {
   const [charger, setCharger] = useState<Charger | null>(null);
@@ -126,274 +162,459 @@ export default function V2VTab() {
   const [sessions, setSessions] = useState<V2VSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [actionResult, setActionResult] = useState<ActionResult | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [commandBusy, setCommandBusy] = useState<string | null>(null);
+  const [result, setResult] = useState<ActionResult | null>(null);
+  const [liveRecovered, setLiveRecovered] = useState(false);
+  const previousOfflineRef = useRef<boolean | null>(null);
 
   const fetchStatus = useCallback(async () => {
-    try {
-      const res = await fetch(`${EVBUDDY_API}/v1/v2v/status`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setCharger(data.charger);
-          setConnectors(Array.isArray(data.connectors) ? data.connectors : []);
-          setError(null);
-        }
-      } else {
-        setError(`Status fetch failed: ${res.status}`);
-      }
-    } catch (err: unknown) {
-      setError(`Connection failed: ${err instanceof Error ? err.message : String(err)}`);
-    }
+    const response = await fetch(`${EVBUDDY_API}/v1/v2v/status`);
+    if (!response.ok) throw new Error(`Status fetch failed (${response.status})`);
+    const payload = (await response.json()) as V2VStatusPayload;
+    if (!payload.success) throw new Error("V2V status was not successful");
+    setCharger(payload.charger ?? null);
+    setConnectors(Array.isArray(payload.connectors) ? payload.connectors : []);
   }, []);
 
   const fetchSessions = useCallback(async () => {
-    try {
-      const res = await fetch(`${EVBUDDY_API}/v1/v2v/sessions`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) setSessions(data.sessions || []);
-      }
-    } catch {
-      // sessions are secondary
-    }
+    const response = await fetch(`${EVBUDDY_API}/v1/v2v/sessions`);
+    if (!response.ok) return;
+    const payload = (await response.json()) as V2VSessionsPayload;
+    setSessions(Array.isArray(payload.sessions) ? payload.sessions : []);
   }, []);
 
-  const fetchAll = useCallback(async () => {
-    await Promise.all([fetchStatus(), fetchSessions()]);
-    setLoading(false);
-  }, [fetchStatus, fetchSessions]);
+  const refresh = useCallback(async () => {
+    try {
+      await Promise.all([fetchStatus(), fetchSessions()]);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to refresh V2V data");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchSessions, fetchStatus]);
 
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    refresh();
+  }, [refresh]);
 
   useEffect(() => {
     if (!autoRefresh) return;
-    const interval = setInterval(fetchAll, 5000);
-    return () => clearInterval(interval);
-  }, [autoRefresh, fetchAll]);
+    const id = setInterval(() => {
+      refresh();
+    }, 5000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refresh]);
 
-  const postAction = async (url: string, body: Record<string, unknown>, label: string) => {
-    setActionLoading(label);
-    setActionResult(null);
+  const runCommand = async (path: string, body: Record<string, unknown>, token: string) => {
+    setCommandBusy(token);
+    setResult(null);
     try {
-      const res = await fetch(`${EVBUDDY_API}${url}`, {
+      const response = await fetch(`${EVBUDDY_API}${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
-      const ok = data.success && (data.status === "Accepted" || !data.status || data.status === "Rejected");
-      setActionResult({
-        type: ok ? "success" : "warn",
-        msg: data.message || data.error || data.status || "Command sent",
-      });
-      setTimeout(fetchAll, 1500);
-    } catch (err: unknown) {
-      setActionResult({ type: "error", msg: err instanceof Error ? err.message : String(err) });
+      const payload = (await response.json()) as { success?: boolean; message?: string; error?: string; status?: string };
+      setResult(normalizeCommandMessage(payload));
+      setTimeout(() => {
+        refresh();
+      }, 1200);
+    } catch (err) {
+      setResult({ tone: "error", message: err instanceof Error ? err.message : "Command failed" });
+    } finally {
+      setCommandBusy(null);
     }
-    setActionLoading(null);
   };
 
-  const handleStart = (connectorId: number) =>
-    postAction("/v1/v2v/start", { connector_id: connectorId }, `start-${connectorId}`);
+  const connectorToSession = useMemo(() => {
+    const map = new Map<number, V2VSession>();
+    sessions.forEach((session) => {
+      if (session.is_active || session.status === "InProgress") {
+        map.set(session.connector_id, session);
+      }
+    });
+    return map;
+  }, [sessions]);
 
-  const handleStop = (connectorId: number, transactionId: number | undefined) =>
-    postAction("/v1/v2v/stop", { connector_id: connectorId, transaction_id: transactionId }, `stop-${connectorId}`);
+  const offline = !charger?.online;
+  const heartbeatTone = heartbeatState(charger?.last_heartbeat);
+  const heartbeatLabel = heartbeatSignalLabel(heartbeatTone);
+  const snapshotHeartbeat = heartbeatAgeLabel(charger?.last_heartbeat);
+  const snapshotHeartbeatCopy = snapshotHeartbeat === "Not detected" ? "not detected" : snapshotHeartbeat;
 
-  const handleReset = (type: string) =>
-    postAction("/v1/v2v/reset", { type }, `reset-${type}`);
+  const connectorSummary = useMemo(() => {
+    let active = 0;
+    let available = 0;
+    let faulted = 0;
+
+    connectors.forEach((connector) => {
+      const normalized = (connector.status || "").toLowerCase();
+      if (isActiveConnector(connector.status)) active += 1;
+      if (normalized === "available") available += 1;
+      if (normalized === "faulted" || normalized === "unavailable" || normalized === "offline") faulted += 1;
+    });
+
+    return {
+      active,
+      available,
+      faulted,
+      total: connectors.length,
+    };
+  }, [connectors]);
+
+  const connectorsForDisplay = [...connectors].sort((left, right) => {
+    if (offline) {
+      return left.connector_id - right.connector_id;
+    }
+    const rank = connectorSortRank(left.status) - connectorSortRank(right.status);
+    return rank !== 0 ? rank : left.connector_id - right.connector_id;
+  });
+
+  useEffect(() => {
+    if (loading) return;
+
+    const previousOffline = previousOfflineRef.current;
+    if (previousOffline === true && !offline) {
+      setLiveRecovered(true);
+    }
+    if (previousOffline === false && offline) {
+      setLiveRecovered(false);
+    }
+
+    previousOfflineRef.current = offline;
+  }, [offline, loading]);
+
+  useEffect(() => {
+    if (!liveRecovered) return;
+    const timeoutId = window.setTimeout(() => {
+      setLiveRecovered(false);
+    }, 6000);
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [liveRecovered]);
+
+  const inlineOfflineResult = Boolean(
+    offline &&
+      result?.tone === "error" &&
+      ((result.message || "").toLowerCase().includes("could not be delivered") ||
+        (result.detail || "").toLowerCase().includes("charger offline"))
+  );
+  const heartbeatSummary = heartbeatAgeLabel(charger?.last_heartbeat);
+  const transport = "OCPP";
+  const modemState = offline ? "Offline / unknown" : "Online";
 
   if (loading) {
     return (
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>V2V Charging</div>
-        <div style={{ color: "var(--text-muted)" }}>Loading charge point data...</div>
-      </div>
+      <Panel>
+        <SectionHeader title="V2V Control" icon="🚗" />
+        <div className="feature-empty">Loading connector controls…</div>
+      </Panel>
     );
   }
 
-  const online = charger?.online ?? false;
-
   return (
-    <div>
-      {/* Charger Card */}
-      <div style={styles.card}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{CHARGE_POINT_ID}</span>
-            <span style={{
-              ...styles.badge,
-              marginLeft: 0,
-              ...(online ? styles.badgeSuccess : styles.badgeError),
-            }}>
-              {online ? "ONLINE" : "OFFLINE"}
-            </span>
+    <div className="feature-shell">
+      <Panel style={{ padding: 16 }}>
+        <SectionHeader
+          title="V2V Mission Control"
+          icon="⚙️"
+          action={
+            <div className="feature-actions">
+              <label className="v2v-inline-toggle">
+                <input
+                  type="checkbox"
+                  checked={autoRefresh}
+                  onChange={(event) => setAutoRefresh(event.target.checked)}
+                />
+                Auto-refresh (5s)
+              </label>
+              <Button variant="outline" onClick={refresh}>Refresh Status</Button>
+            </div>
+          }
+        />
+
+        <div className={`v2v-device-shell${offline ? " critical" : ""}${liveRecovered && !offline ? " recovered" : ""}`}>
+          <div className="v2v-control-row">
+            <div className="v2v-title-wrap">
+              <h3 className="v2v-device-name">{CHARGE_POINT_ID}</h3>
+              <StatusPill
+                tone={offline ? "error" : "success"}
+                label={offline ? "OFFLINE" : "ONLINE"}
+                style={{ letterSpacing: "0.05em" }}
+              />
+              <StatusPill
+                tone={connectorSummary.faulted > 0 ? "error" : "neutral"}
+                label={`FAULTS ${connectorSummary.faulted}`}
+                style={{ letterSpacing: "0.04em", opacity: offline ? 0.86 : 0.92 }}
+              />
+            </div>
+
+            {!offline && (
+              <div className="feature-actions v2v-control-actions">
+                <Button
+                  variant="outline"
+                  disabled={Boolean(commandBusy)}
+                  onClick={() => runCommand("/v1/v2v/reset", { type: "Soft" }, "reset-soft")}
+                  style={{
+                    color: "var(--text-muted)",
+                    borderColor: "var(--line-soft)",
+                    background: "rgba(255, 255, 255, 0.02)",
+                  }}
+                >
+                  {commandBusy === "reset-soft" ? "Working…" : "Soft Reset"}
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={Boolean(commandBusy)}
+                  onClick={() => runCommand("/v1/v2v/reset", { type: "Hard" }, "reset-hard")}
+                >
+                  {commandBusy === "reset-hard" ? "Working…" : "Hard Reset"}
+                </Button>
+              </div>
+            )}
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              style={{ ...btnSoftReset, opacity: actionLoading ? 0.5 : 1 }}
-              disabled={!!actionLoading}
-              onClick={() => handleReset("Soft")}
-            >
-              {actionLoading === "reset-Soft" ? "..." : "Soft Reset"}
-            </button>
-            <button
-              style={{ ...btnHardReset, opacity: actionLoading ? 0.5 : 1 }}
-              disabled={!!actionLoading}
-              onClick={() => handleReset("Hard")}
-            >
-              {actionLoading === "reset-Hard" ? "..." : "Hard Reset"}
-            </button>
+
+          <div className="v2v-ops-facts">
+            <div className="v2v-ops-fact">
+              <span className="k">Last seen</span>
+              <span className={`v ${heartbeatTone}`} title={formatLastSeen(charger?.last_heartbeat)}>
+                {heartbeatSummary}
+              </span>
+            </div>
+            <div className="v2v-ops-fact">
+              <span className="k">Transport</span>
+              <span className="v">{transport}</span>
+            </div>
+            <div className="v2v-ops-fact">
+              <span className="k">Heartbeat</span>
+              <span className={`v ${heartbeatTone}`}>{heartbeatLabel}</span>
+            </div>
+            <div className="v2v-ops-fact">
+              <span className="k">Network / modem</span>
+              <span className="v">{modemState}</span>
+            </div>
           </div>
-        </div>
 
-        {charger && (
-          <div style={{ display: "flex", gap: 24, flexWrap: "wrap", fontSize: 12.5, color: "var(--text-muted)", marginTop: 12 }}>
-            <span>{charger.charge_point_model}</span>
-            <span>{charger.charge_point_vendor}</span>
-            <span>SN: {charger.charge_point_serial_number}</span>
-            <span>FW {charger.firmware_version}</span>
-            <span>Heartbeat {timeAgo(charger.last_heartbeat)}</span>
-          </div>
-        )}
+          {liveRecovered && !offline && (
+            <div className="v2v-recovery-cue" role="status" aria-live="polite">
+              <span className="pulse" aria-hidden="true" />
+              <span>Connection restored. Live telemetry resumed.</span>
+            </div>
+          )}
 
-        {error && (
-          <div style={{ marginTop: 12, padding: "8px 12px", borderRadius: 8, background: "rgba(255,127,136,0.12)", color: "var(--accent-danger)", fontSize: 13 }}>
-            {error}
-          </div>
-        )}
-      </div>
-
-      {/* Action Result */}
-      {actionResult && (
-        <div style={{
-          ...styles.card,
-          padding: "10px 16px",
-          background: actionResult.type === "success" ? "rgba(70,214,181,0.12)" : actionResult.type === "warn" ? "rgba(255,185,103,0.12)" : "rgba(255,127,136,0.12)",
-          border: `1px solid ${actionResult.type === "success" ? "rgba(91,230,199,0.3)" : actionResult.type === "warn" ? "rgba(255,202,140,0.3)" : "rgba(255,156,163,0.3)"}`,
-          fontSize: 13,
-          color: actionResult.type === "success" ? "var(--accent-success)" : actionResult.type === "warn" ? "var(--accent-warn)" : "var(--accent-danger)",
-        }}>
-          {actionResult.msg}
-        </div>
-      )}
-
-      {/* Connector Cards */}
-      <div style={styles.grid}>
-        {connectors.map((conn) => {
-          const st = conn.status || "Unknown";
-          const isCharging = ["Charging", "SuspendedEV", "SuspendedEVSE", "Preparing"].includes(st);
-          // Connector data doesn't include txn ID — look it up from active sessions
-          const activeSession = sessions.find(
-            (s) => s.connector_id === conn.connector_id && (s.is_active || s.status === "InProgress")
-          );
-          const txnId = activeSession?.transaction_id;
-
-          return (
-            <div key={conn.connector_id} style={styles.card}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <span style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)" }}>
-                  Connector {conn.connector_id}
-                </span>
-                <span style={{
-                  ...styles.badge,
-                  marginLeft: 0,
-                  background: `${statusColor(st)}22`,
-                  color: statusColor(st),
-                  borderColor: `${statusColor(st)}44`,
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}>
-                  {st}
-                </span>
+          {offline && (
+            <div className="v2v-offline-panel" role="status" aria-live="polite">
+              <div className="v2v-offline-copy">
+                <p className="overline">Recovery</p>
+                <p className="status">Charger offline</p>
+                <p className="cause">No OCPP heartbeat detected.</p>
+                <p className="impact">
+                  {inlineOfflineResult
+                    ? "Last reset request could not be delivered because no heartbeat is active."
+                    : "Reset requests cannot be delivered because no heartbeat is active."}
+                </p>
+                <p className="hint">Check power, uplink, and modem status.</p>
               </div>
 
-              {conn.error_code && conn.error_code !== "NoError" && (
-                <div style={{ color: "var(--accent-danger)", fontSize: 13, marginBottom: 8 }}>Error: {conn.error_code}</div>
-              )}
-              {txnId && (
-                <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>
-                  Transaction: <strong>{txnId}</strong>
-                </div>
-              )}
-
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  style={{ ...btnStart, opacity: isCharging || actionLoading ? 0.5 : 1 }}
-                  disabled={isCharging || !!actionLoading}
-                  onClick={() => handleStart(conn.connector_id)}
+              <div className="v2v-recovery-actions">
+                <Button
+                  variant="primary"
+                  style={{ textTransform: "none", letterSpacing: "0.02em" }}
+                  onClick={refresh}
                 >
-                  {actionLoading === `start-${conn.connector_id}` ? "Starting..." : "Start"}
-                </button>
-                <button
-                  style={{ ...btnStop, opacity: !txnId || actionLoading ? 0.5 : 1 }}
-                  disabled={!txnId || !!actionLoading}
-                  onClick={() => handleStop(conn.connector_id, txnId)}
+                  Poll Now
+                </Button>
+                <Button variant="secondary" onClick={() => navigateToTab("chargers")}>Connection Diagnostics</Button>
+                <Button
+                  variant="outline"
+                  style={{
+                    color: "var(--text-muted)",
+                    borderColor: "var(--line-soft)",
+                  }}
+                  onClick={() => navigateToTab("sessions")}
                 >
-                  {actionLoading === `stop-${conn.connector_id}` ? "Stopping..." : "Stop"}
-                </button>
-                <button
-                  style={btnRefresh}
-                  onClick={fetchAll}
-                >
-                  Refresh
-                </button>
+                  Live Logs
+                </Button>
               </div>
             </div>
-          );
-        })}
+          )}
 
-        {connectors.length === 0 && !error && (
-          <div style={{ ...styles.card, color: "var(--text-muted)" }}>
-            No connector data available
+          {!offline && (
+            <div className="v2v-heartbeat-meta">
+              <div className="v2v-heartbeat-fact">
+                <span className="k">Model</span>
+                <span className="v">{charger?.charge_point_model || "Unknown"}</span>
+              </div>
+              <div className="v2v-heartbeat-fact">
+                <span className="k">Serial</span>
+                <span className="v">{charger?.charge_point_serial_number || "—"}</span>
+              </div>
+              <div className="v2v-heartbeat-fact">
+                <span className="k">Heartbeat</span>
+                <span className="v">{heartbeatLabel}</span>
+              </div>
+            </div>
+          )}
+
+          {!offline && (
+            <div className="v2v-heartbeat">
+              <span className="k">Last heartbeat seen</span>
+              <span className={`v ${heartbeatTone}`}>{formatLastSeen(charger?.last_heartbeat)}</span>
+            </div>
+          )}
+        </div>
+
+        {error && <div className="feature-error">{error}</div>}
+        {result && !inlineOfflineResult && (
+          <div className={result.tone === "success" ? "feature-success" : "feature-error"}>
+            <div>{result.message}</div>
+            {result.detail && <div className="feature-feedback-detail">{result.detail}</div>}
           </div>
         )}
-      </div>
+      </Panel>
 
-      {/* Session History */}
-      {sessions.length > 0 && (
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>Recent Sessions</div>
-          <div style={{ overflowX: "auto" }}>
-            <table style={styles.table}>
+      <Panel>
+        <SectionHeader
+          title="Connector Operations"
+          icon="🔌"
+          subtitle={
+            offline
+              ? `${connectorSummary.total} connectors · read-only snapshot`
+              : `${connectorSummary.active} active · ${connectorSummary.available} available${
+                  connectorSummary.faulted ? ` · ${connectorSummary.faulted} faulted` : ""
+                }`
+          }
+        />
+        {offline && (
+          <div className="v2v-connector-stale-note">
+            Connector status may be stale until heartbeat returns.
+            <span className="v2v-connector-stale-meta">Last telemetry update: {snapshotHeartbeatCopy}.</span>
+          </div>
+        )}
+        {connectors.length === 0 ? (
+          <div className="feature-empty">No connector telemetry returned.</div>
+        ) : (
+          <div className="v2v-connector-grid">
+            {connectorsForDisplay.map((connector) => {
+              const status = statusLabel(connector.status);
+              const tone = statusTone(connector.status);
+              const active = isActiveConnector(connector.status);
+              const session = connectorToSession.get(connector.connector_id);
+              const statusForDisplay = offline ? `${status} (last known)` : status;
+              const toneForDisplay = offline ? "neutral" : tone;
+              const activityCopy = offline ? "Read-only telemetry snapshot." : active ? "Actively engaged" : "Idle / waiting";
+
+              return (
+                <div key={connector.connector_id} className={`v2v-connector-card${offline ? " snapshot" : ""}`}>
+                  <div className="v2v-connector-head">
+                    <h4 className="feature-title">Connector {connector.connector_id}</h4>
+                    <StatusPill
+                      tone={toneForDisplay}
+                      label={statusForDisplay}
+                      style={offline ? { opacity: 0.72, filter: "saturate(0.58)" } : undefined}
+                    />
+                  </div>
+
+                  <div className="feature-stack">
+                    <div className="v2v-status-row">
+                      <span className={`v2v-live-dot ${toneForDisplay}`} />
+                      <span>{activityCopy}</span>
+                    </div>
+
+                    {offline && (
+                      <p className="v2v-connector-snapshot-note">Last telemetry update: {snapshotHeartbeatCopy}.</p>
+                    )}
+
+                    {session && (
+                      <p className="v2v-connector-session-brief">
+                        Transaction {session.transaction_id} · Duration {duration(session.duration_seconds)}
+                      </p>
+                    )}
+
+                    {connector.error_code && connector.error_code !== "NoError" && (
+                      <div className="feature-error">Error: {connector.error_code}</div>
+                    )}
+                  </div>
+
+                  <div className={`v2v-connector-actions${offline ? " offline" : ""}`}>
+                    {offline ? (
+                      <p className="v2v-connector-offline-note">Controls unavailable while charger is offline.</p>
+                    ) : (
+                      <>
+                        <Button
+                          variant="primary"
+                          disabled={active || Boolean(commandBusy)}
+                          onClick={() => runCommand("/v1/v2v/start", { connector_id: connector.connector_id }, `start-${connector.connector_id}`)}
+                        >
+                          {commandBusy === `start-${connector.connector_id}` ? "Starting…" : "Start"}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          disabled={!session?.transaction_id || Boolean(commandBusy)}
+                          onClick={() =>
+                            runCommand(
+                              "/v1/v2v/stop",
+                              { connector_id: connector.connector_id, transaction_id: session?.transaction_id },
+                              `stop-${connector.connector_id}`
+                            )
+                          }
+                        >
+                          {commandBusy === `stop-${connector.connector_id}` ? "Stopping…" : "Stop"}
+                        </Button>
+                      </>
+                    )}
+                    <Button variant="outline" onClick={refresh}>Refresh Status</Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Panel>
+
+      <Panel>
+        <SectionHeader title="Session Feed" icon="🧾" subtitle="Recent and active transactions" />
+        {sessions.length === 0 ? (
+          <div className="feature-empty">No recorded sessions yet.</div>
+        ) : (
+          <div className="v2v-session-shell">
+            <table className="feature-table">
               <thead>
                 <tr>
-                  <th style={styles.th}>Txn</th>
-                  <th style={styles.th}>Conn</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Started</th>
-                  <th style={styles.th}>Duration</th>
-                  <th style={styles.th}>Energy</th>
-                  <th style={styles.th}>Stop Reason</th>
+                  <th>Txn</th>
+                  <th>Connector</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Duration</th>
+                  <th>Energy</th>
+                  <th>Stop Reason</th>
                 </tr>
               </thead>
               <tbody>
-                {sessions.map((s) => {
-                  const isActive = s.status === "InProgress" || s.is_active;
+                {sessions.map((session) => {
+                  const active = session.is_active || session.status === "InProgress";
                   return (
-                    <tr key={s.transaction_id}>
-                      <td style={styles.td}>{s.transaction_id}</td>
-                      <td style={styles.td}>{s.connector_id}</td>
-                      <td style={styles.td}>
-                        <span style={{ ...styles.badge, marginLeft: 0, ...(isActive ? styles.badgePending : styles.badgeSuccess) }}>
-                          {s.status}
-                        </span>
+                    <tr key={session.transaction_id}>
+                      <td className="feature-mono">{session.transaction_id}</td>
+                      <td>{session.connector_id}</td>
+                      <td>
+                        <StatusPill tone={active ? "success" : "neutral"} label={session.status || "Unknown"} />
                       </td>
-                      <td style={styles.td}>{timeAgo(s.start_timestamp)}</td>
-                      <td style={styles.td}>{formatDuration(s.duration_seconds)}</td>
-                      <td style={styles.td}>{s.energy_delivered != null ? `${s.energy_delivered} kWh` : "—"}</td>
-                      <td style={{ ...styles.td, color: "var(--text-muted)" }}>{s.stop_reason || "—"}</td>
+                      <td>{ago(session.start_timestamp)}</td>
+                      <td>{duration(session.duration_seconds)}</td>
+                      <td>{typeof session.energy_delivered === "number" ? `${session.energy_delivered} kWh` : "—"}</td>
+                      <td className="feature-muted">{session.stop_reason || "—"}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </Panel>
     </div>
   );
 }

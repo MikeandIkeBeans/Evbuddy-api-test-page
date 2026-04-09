@@ -1,0 +1,920 @@
+[
+  {
+    "file": "routes/pages.py",
+    "handler": "index",
+    "method": "GET",
+    "path": "/"
+  },
+  {
+    "file": "routes/pages.py",
+    "handler": "static_proxy",
+    "method": "GET",
+    "path": "/<path:path>"
+  },
+  {
+    "file": "routes/invites.py",
+    "handler": "get_all_grants",
+    "method": "GET",
+    "path": "/api/accessgrants/charger_access/grants"
+  },
+  {
+    "file": "routes/invites.py",
+    "handler": "get_grants_by_user",
+    "method": "GET",
+    "path": "/api/accessgrants/charger_access/grantsbyuser/<int:user_id>"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_change_configuration",
+    "method": "POST",
+    "path": "/api/assets/<asset_id>/change-configuration"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_list_asset_commands",
+    "method": "GET",
+    "path": "/api/assets/<asset_id>/commands"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_get_diagnostics",
+    "method": "GET",
+    "path": "/api/assets/<asset_id>/diagnostics"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_firmware_update",
+    "method": "POST",
+    "path": "/api/assets/<asset_id>/firmware-update"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_maintenance_mode",
+    "method": "POST",
+    "path": "/api/assets/<asset_id>/maintenance-mode"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_remote_start",
+    "method": "POST",
+    "path": "/api/assets/<asset_id>/remote-start"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_remote_stop",
+    "method": "POST",
+    "path": "/api/assets/<asset_id>/remote-stop"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_reset",
+    "method": "POST",
+    "path": "/api/assets/<asset_id>/reset"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_update_tariff",
+    "method": "PUT",
+    "path": "/api/assets/<asset_id>/tariff"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "get_audit_log",
+    "method": "GET",
+    "path": "/api/audit-log"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "check_can_manage_site",
+    "method": "GET",
+    "path": "/api/auth/can-manage-site/<int:site_id>"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "check_can_use_site",
+    "method": "GET",
+    "path": "/api/auth/can-use-site/<int:site_id>"
+  },
+  {
+    "file": "routes/businesses.py",
+    "handler": "get_all_businesses",
+    "method": "GET",
+    "path": "/api/businesses"
+  },
+  {
+    "file": "routes/businesses.py",
+    "handler": "create_business",
+    "method": "POST",
+    "path": "/api/businesses"
+  },
+  {
+    "file": "routes/businesses.py",
+    "handler": "delete_business",
+    "method": "DELETE",
+    "path": "/api/businesses/<int:business_id>"
+  },
+  {
+    "file": "routes/businesses.py",
+    "handler": "get_business",
+    "method": "GET",
+    "path": "/api/businesses/<int:business_id>"
+  },
+  {
+    "file": "routes/businesses.py",
+    "handler": "update_business",
+    "method": "PUT",
+    "path": "/api/businesses/<int:business_id>"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "get_business_employees",
+    "method": "GET",
+    "path": "/api/businesses/<int:business_id>/employees"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "create_employee",
+    "method": "POST",
+    "path": "/api/businesses/<int:business_id>/employees"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "get_business_sites",
+    "method": "GET",
+    "path": "/api/businesses/<int:business_id>/sites"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "create_site",
+    "method": "POST",
+    "path": "/api/businesses/<int:business_id>/sites"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "api_data",
+    "method": "GET",
+    "path": "/api/data"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "delete_employee",
+    "method": "DELETE",
+    "path": "/api/employees/<int:employee_id>"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "get_employee",
+    "method": "GET",
+    "path": "/api/employees/<int:employee_id>"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "update_employee",
+    "method": "PUT",
+    "path": "/api/employees/<int:employee_id>"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "get_employee_permissions",
+    "method": "GET",
+    "path": "/api/employees/<int:employee_id>/permissions"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "grant_employee_permission",
+    "method": "POST",
+    "path": "/api/employees/<int:employee_id>/permissions"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "revoke_employee_permission",
+    "method": "DELETE",
+    "path": "/api/employees/<int:employee_id>/permissions/<int:permission_id>"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "get_employee_sites",
+    "method": "GET",
+    "path": "/api/employees/<int:employee_id>/sites"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "assign_employee_to_site",
+    "method": "POST",
+    "path": "/api/employees/<int:employee_id>/sites"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "remove_employee_from_site",
+    "method": "DELETE",
+    "path": "/api/employees/<int:employee_id>/sites/<int:site_id>"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "update_employee_site",
+    "method": "PUT",
+    "path": "/api/employees/<int:employee_id>/sites/<int:site_id>"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "get_invitation",
+    "method": "GET",
+    "path": "/api/invitations/<token>"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "accept_invitation",
+    "method": "POST",
+    "path": "/api/invitations/<token>/accept"
+  },
+  {
+    "file": "routes/invites.py",
+    "handler": "get_all_invites",
+    "method": "GET",
+    "path": "/api/invites"
+  },
+  {
+    "file": "routes/invites.py",
+    "handler": "get_invites_by_user",
+    "method": "GET",
+    "path": "/api/invites/invited-by/<int:user_id>"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "get_my_site_access",
+    "method": "GET",
+    "path": "/api/me/site-access"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "get_my_all_site_access",
+    "method": "GET",
+    "path": "/api/me/site-access/all"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "list_templates",
+    "method": "GET",
+    "path": "/api/messaging/templates"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "create_template",
+    "method": "POST",
+    "path": "/api/messaging/templates"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "delete_template",
+    "method": "DELETE",
+    "path": "/api/messaging/templates/<int:template_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_template",
+    "method": "GET",
+    "path": "/api/messaging/templates/<int:template_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "update_template",
+    "method": "PATCH",
+    "path": "/api/messaging/templates/<int:template_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_template_by_key",
+    "method": "GET",
+    "path": "/api/messaging/templates/key/<key>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "list_threads",
+    "method": "GET",
+    "path": "/api/messaging/threads"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "create_thread",
+    "method": "POST",
+    "path": "/api/messaging/threads"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "delete_thread",
+    "method": "DELETE",
+    "path": "/api/messaging/threads/<int:thread_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_thread",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "update_thread",
+    "method": "PATCH",
+    "path": "/api/messaging/threads/<int:thread_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "list_messages",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/messages"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "create_message",
+    "method": "POST",
+    "path": "/api/messaging/threads/<int:thread_id>/messages"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "delete_message",
+    "method": "DELETE",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_message",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "update_message",
+    "method": "PATCH",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "list_attachments",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>/attachments"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "create_attachment",
+    "method": "POST",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>/attachments"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "delete_attachment",
+    "method": "DELETE",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>/attachments/<int:attachment_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_attachment",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/messages/<int:message_id>/attachments/<int:attachment_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "list_participants",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/participants"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "add_participant",
+    "method": "POST",
+    "path": "/api/messaging/threads/<int:thread_id>/participants"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "remove_participant",
+    "method": "DELETE",
+    "path": "/api/messaging/threads/<int:thread_id>/participants/<int:account_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_participant",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/participants/<int:account_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "update_participant",
+    "method": "PATCH",
+    "path": "/api/messaging/threads/<int:thread_id>/participants/<int:account_id>"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "list_status_events",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/status-events"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "create_status_event",
+    "method": "POST",
+    "path": "/api/messaging/threads/<int:thread_id>/status-events"
+  },
+  {
+    "file": "routes/messaging.py",
+    "handler": "get_status_event",
+    "method": "GET",
+    "path": "/api/messaging/threads/<int:thread_id>/status-events/<int:event_id>"
+  },
+  {
+    "file": "routes/operating_hours.py",
+    "handler": "get_operating_hours",
+    "method": "GET",
+    "path": "/api/operating-hours"
+  },
+  {
+    "file": "routes/operating_hours.py",
+    "handler": "put_operating_hours",
+    "method": "PUT",
+    "path": "/api/operating-hours"
+  },
+  {
+    "file": "routes/operating_hours.py",
+    "handler": "get_operating_hours_exceptions",
+    "method": "GET",
+    "path": "/api/operating-hours-exceptions"
+  },
+  {
+    "file": "routes/operating_hours.py",
+    "handler": "create_operating_hours_exception",
+    "method": "POST",
+    "path": "/api/operating-hours-exceptions"
+  },
+  {
+    "file": "routes/payments.py",
+    "handler": "get_all_payments",
+    "method": "GET",
+    "path": "/api/payments"
+  },
+  {
+    "file": "routes/payments.py",
+    "handler": "create_payment",
+    "method": "POST",
+    "path": "/api/payments"
+  },
+  {
+    "file": "routes/payments.py",
+    "handler": "delete_payment",
+    "method": "DELETE",
+    "path": "/api/payments/<int:payment_id>"
+  },
+  {
+    "file": "routes/payments.py",
+    "handler": "get_payment_by_id",
+    "method": "GET",
+    "path": "/api/payments/<int:payment_id>"
+  },
+  {
+    "file": "routes/services.py",
+    "handler": "platform_health",
+    "method": "GET",
+    "path": "/api/platform/health"
+  },
+  {
+    "file": "routes/services.py",
+    "handler": "platform_single_service_status",
+    "method": "GET",
+    "path": "/api/platform/services/<service_name>"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "api_preorder",
+    "method": "POST",
+    "path": "/api/preorder"
+  },
+  {
+    "file": "routes/services.py",
+    "handler": "get_services_status",
+    "method": "GET",
+    "path": "/api/services"
+  },
+  {
+    "file": "routes/services.py",
+    "handler": "get_single_service_status",
+    "method": "GET",
+    "path": "/api/services/<service_name>"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_refund_session",
+    "method": "POST",
+    "path": "/api/sessions/<session_id>/refund"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "get_all_sites",
+    "method": "GET",
+    "path": "/api/sites"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "delete_site",
+    "method": "DELETE",
+    "path": "/api/sites/<int:site_id>"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "get_site",
+    "method": "GET",
+    "path": "/api/sites/<int:site_id>"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "update_site",
+    "method": "PUT",
+    "path": "/api/sites/<int:site_id>"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "request_site_access",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/access-request"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "get_site_drivers",
+    "method": "GET",
+    "path": "/api/sites/<int:site_id>/drivers"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "approve_driver",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/drivers/<int:driver_id>/approve"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "block_driver",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/drivers/<int:driver_id>/block"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "revoke_driver",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/drivers/<int:driver_id>/revoke"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "unblock_driver",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/drivers/<int:driver_id>/unblock"
+  },
+  {
+    "file": "routes/drivers.py",
+    "handler": "invite_driver",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/drivers/invite"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "get_site_employees",
+    "method": "GET",
+    "path": "/api/sites/<int:site_id>/employees"
+  },
+  {
+    "file": "routes/employees.py",
+    "handler": "assign_existing_employee_to_site",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/employees"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "get_site_members",
+    "method": "GET",
+    "path": "/api/sites/<int:site_id>/members"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "remove_site_member",
+    "method": "DELETE",
+    "path": "/api/sites/<int:site_id>/members/<int:user_id>"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "add_site_member",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/members/<int:user_id>"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "invite_site_member",
+    "method": "POST",
+    "path": "/api/sites/<int:site_id>/members/invite"
+  },
+  {
+    "file": "routes/sites.py",
+    "handler": "api_subscribe",
+    "method": "POST",
+    "path": "/api/subscribe"
+  },
+  {
+    "file": "routes/cpms.py",
+    "handler": "cpms_get_transaction",
+    "method": "GET",
+    "path": "/api/transactions/<txid>"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "get_all_users",
+    "method": "GET",
+    "path": "/api/users"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "create_user",
+    "method": "POST",
+    "path": "/api/users"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "delete_user",
+    "method": "DELETE",
+    "path": "/api/users/<int:user_id>"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "get_user_by_id",
+    "method": "GET",
+    "path": "/api/users/<int:user_id>"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "patch_user",
+    "method": "PATCH",
+    "path": "/api/users/<int:user_id>"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "update_user",
+    "method": "PUT",
+    "path": "/api/users/<int:user_id>"
+  },
+  {
+    "file": "routes/payments.py",
+    "handler": "get_user_payments",
+    "method": "GET",
+    "path": "/api/users/<int:user_id>/payments"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "get_user_vehicles",
+    "method": "GET",
+    "path": "/api/users/<int:user_id>/vehicles"
+  },
+  {
+    "file": "routes/users.py",
+    "handler": "users_service_status",
+    "method": "GET",
+    "path": "/api/users/status"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "get_all_vehicles",
+    "method": "GET",
+    "path": "/api/vehicles"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "create_vehicle",
+    "method": "POST",
+    "path": "/api/vehicles"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "delete_vehicle",
+    "method": "DELETE",
+    "path": "/api/vehicles/<int:vehicle_id>"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "get_vehicle_by_id",
+    "method": "GET",
+    "path": "/api/vehicles/<int:vehicle_id>"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "patch_vehicle",
+    "method": "PATCH",
+    "path": "/api/vehicles/<int:vehicle_id>"
+  },
+  {
+    "file": "routes/vehicles.py",
+    "handler": "update_vehicle",
+    "method": "PUT",
+    "path": "/api/vehicles/<int:vehicle_id>"
+  },
+  {
+    "file": "routes/pages.py",
+    "handler": "guest_page",
+    "method": "GET",
+    "path": "/guest"
+  },
+  {
+    "file": "routes/pages.py",
+    "handler": "guest_qr",
+    "method": "GET",
+    "path": "/guest/qr"
+  },
+  {
+    "file": "routes/services.py",
+    "handler": "health",
+    "method": "GET",
+    "path": "/health"
+  },
+  {
+    "file": "routes/pages.py",
+    "handler": "guest_page",
+    "method": "GET",
+    "path": "/test-page.html"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_auth_card_init",
+    "method": "ROUTE",
+    "path": "/v1/auth/card/init"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_auth_hotel",
+    "method": "ROUTE",
+    "path": "/v1/auth/hotel"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_charge_points",
+    "method": "ROUTE",
+    "path": "/v1/charge-points"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_all_chargers",
+    "method": "ROUTE",
+    "path": "/v1/chargers"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_charger",
+    "method": "ROUTE",
+    "path": "/v1/chargers/<charger_id>"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_charger_real_status",
+    "method": "ROUTE",
+    "path": "/v1/chargers/<charger_id>/status"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_charger_details",
+    "method": "ROUTE",
+    "path": "/v1/chargers/<int:charger_id>/details"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_charger_ocpp_status",
+    "method": "ROUTE",
+    "path": "/v1/chargers/ocpp/<charge_point_id>/status"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_chargers_by_site",
+    "method": "ROUTE",
+    "path": "/v1/chargers/site/<int:site_id>"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_session_correlation",
+    "method": "ROUTE",
+    "path": "/v1/debug/sessions/<session_id>/correlation"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_health_check",
+    "method": "ROUTE",
+    "path": "/v1/health"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_host_sites",
+    "method": "ROUTE",
+    "path": "/v1/host-sites"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_create_host_site",
+    "method": "ROUTE",
+    "path": "/v1/host-sites"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_host_site",
+    "method": "ROUTE",
+    "path": "/v1/host-sites/<int:site_id>"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_update_host_site",
+    "method": "ROUTE",
+    "path": "/v1/host-sites/<int:site_id>"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_delete_host_site",
+    "method": "ROUTE",
+    "path": "/v1/host-sites/<int:site_id>"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_ocpp_sessions",
+    "method": "ROUTE",
+    "path": "/v1/ocpp/sessions"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_qr_resolve",
+    "method": "ROUTE",
+    "path": "/v1/qr/resolve"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_real_proxy",
+    "method": "ROUTE",
+    "path": "/v1/real/proxy"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_real_get_user_by_email",
+    "method": "ROUTE",
+    "path": "/v1/real/user/getByEmail"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_real_get_users",
+    "method": "ROUTE",
+    "path": "/v1/real/users"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_list_sessions",
+    "method": "ROUTE",
+    "path": "/v1/sessions"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_create_session",
+    "method": "ROUTE",
+    "path": "/v1/sessions"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_session",
+    "method": "ROUTE",
+    "path": "/v1/sessions/<session_id>"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_get_receipt",
+    "method": "ROUTE",
+    "path": "/v1/sessions/<session_id>/receipt"
+  },
+  {
+    "file": "routes/ev_charging.py",
+    "handler": "ev_stop_session",
+    "method": "ROUTE",
+    "path": "/v1/sessions/<session_id>/stop"
+  },
+  {
+    "file": "routes/v2v.py",
+    "handler": "v2v_reset",
+    "method": "POST",
+    "path": "/v1/v2v/reset"
+  },
+  {
+    "file": "routes/v2v.py",
+    "handler": "v2v_sessions",
+    "method": "GET",
+    "path": "/v1/v2v/sessions"
+  },
+  {
+    "file": "routes/v2v.py",
+    "handler": "v2v_start",
+    "method": "POST",
+    "path": "/v1/v2v/start"
+  },
+  {
+    "file": "routes/v2v.py",
+    "handler": "v2v_status",
+    "method": "GET",
+    "path": "/v1/v2v/status"
+  },
+  {
+    "file": "routes/v2v.py",
+    "handler": "v2v_stop",
+    "method": "POST",
+    "path": "/v1/v2v/stop"
+  }
+]

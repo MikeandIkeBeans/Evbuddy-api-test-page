@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { EVBUDDY_API } from "../utils/api";
 import { ChargingSession } from "../types";
+import { Button, Panel, SectionHeader, StatusPill } from "./primitives";
 
 export default function ActiveSessionsTab() {
   const [sessions, setSessions] = useState<ChargingSession[]>([]);
@@ -52,15 +53,15 @@ export default function ActiveSessionsTab() {
 
   const getStatusStyle = (status: string) => {
     switch (status?.toUpperCase()) {
-      case "CHARGING": return { bg: "#00d4aa22", color: "#00d4aa", icon: "⚡" };
+      case "CHARGING": return { bg: "var(--semantic-success-soft)", color: "var(--accent-primary)", icon: "⚡" };
       case "STARTING":
-      case "PREPARING": return { bg: "#ffa50022", color: "#ffa500", icon: "🔌" };
-      case "STOPPING": return { bg: "#ff8c0022", color: "#ff8c00", icon: "⏹" };
+      case "PREPARING": return { bg: "var(--semantic-warning-soft)", color: "var(--semantic-warning)", icon: "🔌" };
+      case "STOPPING": return { bg: "var(--semantic-warning-soft)", color: "var(--semantic-warning)", icon: "⏹" };
       case "COMPLETE":
-      case "COMPLETED": return { bg: "#00a8e822", color: "#00a8e8", icon: "✓" };
-      case "FAILED": return { bg: "#ff475722", color: "#ff4757", icon: "✗" };
-      case "PAUSED": return { bg: "#88888822", color: "#888", icon: "⏸" };
-      default: return { bg: "#33333322", color: "#888", icon: "?" };
+      case "COMPLETED": return { bg: "var(--semantic-info-soft)", color: "var(--semantic-info)", icon: "✓" };
+      case "FAILED": return { bg: "var(--semantic-error-soft)", color: "var(--semantic-error)", icon: "✗" };
+      case "PAUSED": return { bg: "var(--semantic-neutral-soft)", color: "var(--text-muted)", icon: "⏸" };
+      default: return { bg: "var(--semantic-neutral-soft)", color: "var(--text-muted)", icon: "?" };
     }
   };
 
@@ -84,11 +85,12 @@ export default function ActiveSessionsTab() {
   };
 
   return (
-    <div style={styles.card}>
-      <div style={styles.cardTitle}>
-        ⚡ Active Charging Sessions
-        <div style={{ marginLeft: "auto", display: "flex", gap: 12, alignItems: "center" }}>
-          <label style={{ fontSize: 12, color: "#888", display: "flex", alignItems: "center", gap: 6 }}>
+    <Panel>
+      <SectionHeader
+        icon="⚡"
+        title="Active Charging Sessions"
+        action={<div style={{ marginLeft: "auto", display: "flex", gap: 12, alignItems: "center" }}>
+          <label style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 6 }}>
             <input
               type="checkbox"
               checked={autoRefresh}
@@ -96,22 +98,22 @@ export default function ActiveSessionsTab() {
             />
             Auto-refresh (3s)
           </label>
-          <button style={styles.buttonSecondary} onClick={fetchSessions}>
+          <Button variant="secondary" onClick={fetchSessions}>
             Refresh
-          </button>
-        </div>
-      </div>
+          </Button>
+        </div>}
+      />
 
       {error && (
-        <div style={{ background: "#ff475722", color: "#ff4757", padding: 12, borderRadius: 8, marginBottom: 16 }}>
+        <div style={{ background: "var(--semantic-error-soft)", color: "var(--semantic-error)", padding: 12, borderRadius: 8, marginBottom: 16 }}>
           {error}
         </div>
       )}
 
-      {loading && sessions.length === 0 && <p style={{ color: "#888" }}>Loading sessions...</p>}
+      {loading && sessions.length === 0 && <p style={{ color: "var(--text-muted)" }}>Loading sessions...</p>}
 
       {sessions.length === 0 && !loading && !error && (
-        <div style={{ textAlign: "center", padding: 40, color: "#666" }}>
+        <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>🔋</div>
           <div>No active sessions</div>
           <div style={{ fontSize: 12, marginTop: 8 }}>No live sessions from the OCPP API</div>
@@ -126,8 +128,8 @@ export default function ActiveSessionsTab() {
               <div
                 key={session.sessionId}
                 style={{
-                  background: "#0a0a0a",
-                  border: "1px solid #333",
+                  background: "var(--surface-panel)",
+                  border: "1px solid var(--line-soft)",
                   borderRadius: 12,
                   padding: 16,
                   display: "grid",
@@ -146,42 +148,40 @@ export default function ActiveSessionsTab() {
                     }}>
                       {statusStyle.icon} {session.status}
                     </span>
-                    <span style={{ fontSize: 12, color: "#666" }}>{session.sessionId}</span>
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{session.sessionId}</span>
                     {session.source === "ocpp" && (
-                      <span style={{ ...styles.badge, background: "#00a8e822", color: "#00a8e8" }}>
-                        OCPP
-                      </span>
+                      <StatusPill tone="info" label="OCPP" />
                     )}
                   </div>
 
                   <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
                     <div>
-                      <div style={{ fontSize: 11, color: "#888" }}>Charger</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Charger</div>
                       <div style={{ fontWeight: 600 }}>{session.chargerId}:{session.connectorId}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: "#888" }}>Energy</div>
-                      <div style={{ fontWeight: 600, color: "#00d4aa" }}>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Energy</div>
+                      <div style={{ fontWeight: 600, color: "var(--accent-primary)" }}>
                         {session.energyKwh != null ? `${session.energyKwh.toFixed(2)} kWh` : "—"}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: "#888" }}>Power</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Power</div>
                       <div style={{ fontWeight: 600 }}>{session.powerKw != null ? `${session.powerKw.toFixed(1)} kW` : "—"}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: "#888" }}>Duration</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Duration</div>
                       <div style={{ fontWeight: 600 }}>{session.elapsedSec != null ? formatDuration(session.elapsedSec) : "—"}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: "#888" }}>Cost</div>
-                      <div style={{ fontWeight: 600, color: "#ffa500" }}>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Cost</div>
+                      <div style={{ fontWeight: 600, color: "var(--semantic-warning)" }}>
                         {session.cost != null ? `$${session.cost.toFixed(2)}` : "—"}
                       </div>
                     </div>
                     {session.transactionId && (
                       <div>
-                        <div style={{ fontSize: 11, color: "#888" }}>Transaction</div>
+                        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Transaction</div>
                         <div style={{ fontWeight: 600 }}>{session.transactionId}</div>
                       </div>
                     )}
@@ -189,18 +189,18 @@ export default function ActiveSessionsTab() {
                 </div>
 
                 {["CHARGING", "STARTING", "PREPARING"].includes(session.status?.toUpperCase() ?? "") && (
-                  <button
-                    style={{ ...styles.button, ...styles.buttonDanger, padding: "8px 16px" }}
-                    onClick={() => stopSession(session.sessionId)}
-                  >
+                  <Button variant="destructive" style={{ padding: "8px 16px" }} onClick={() => stopSession(session.sessionId)}>
                     Stop
-                  </button>
+                  </Button>
                 )}
               </div>
             );
           })}
         </div>
       )}
-    </div>
+    </Panel>
   );
 }
+
+
+

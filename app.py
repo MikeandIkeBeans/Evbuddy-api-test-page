@@ -13,18 +13,25 @@ from flask import Flask
 from flask_cors import CORS
 
 from routes import ALL_BLUEPRINTS
-
-
-def _env_bool(name, default=False):
-    raw = os.environ.get(name)
-    if raw is None:
-        return default
-    return raw.strip().lower() in {"1", "true", "yes", "on"}
+from src.api.middleware import (
+    register_auth_middleware,
+    register_error_handlers,
+    register_rate_limit_middleware,
+    register_request_id_middleware,
+    register_security_headers,
+)
+from src.config import AppSettings
 
 
 def create_app():
     app = Flask(__name__, static_folder="client/dist", static_url_path="")
     CORS(app)
+
+    register_request_id_middleware(app)
+    register_security_headers(app)
+    register_rate_limit_middleware(app)
+    register_auth_middleware(app)
+    register_error_handlers(app)
 
     for blueprint in ALL_BLUEPRINTS:
         app.register_blueprint(blueprint)
@@ -36,9 +43,7 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    host = os.environ.get("FLASK_HOST", "127.0.0.1")
-    port = int(os.environ.get("FLASK_PORT", "5000"))
-    debug = _env_bool("FLASK_DEBUG", default=True)
+    settings = AppSettings.from_env()
     static_index = os.path.join(app.static_folder, "index.html")
 
     print(
@@ -46,4 +51,4 @@ if __name__ == "__main__":
         f"(exists: {os.path.exists(app.static_folder)})"
     )
     print(f"index.html present: {os.path.exists(static_index)}")
-    app.run(host=host, port=port, debug=debug)
+    app.run(host=settings.flask_host, port=settings.flask_port, debug=settings.flask_debug)

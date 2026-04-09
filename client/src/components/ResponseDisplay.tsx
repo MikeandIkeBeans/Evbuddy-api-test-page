@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "../styles";
 import type { ApiResponse } from "../types";
+import { StatusPill } from "./primitives";
 
 /** JSON Syntax Highlighter – renders safe React elements (no dangerouslySetInnerHTML). */
 export function JsonView({ data }: { data: unknown }) {
@@ -19,11 +20,11 @@ export function JsonView({ data }: { data: unknown }) {
     if (match.index > lastIndex) {
       parts.push({ text: json.slice(lastIndex, match.index), color: null });
     }
-    if (match[1]) parts.push({ text: match[1], color: "#79c0ff" });
-    else if (match[2]) parts.push({ text: match[2], color: "#a5d6ff" });
-    else if (match[3]) parts.push({ text: match[3], color: "#ffa657" });
-    else if (match[4]) parts.push({ text: match[4], color: "#ff7b72" });
-    else if (match[5]) parts.push({ text: match[5], color: "#8b949e" });
+    if (match[1]) parts.push({ text: match[1], color: "var(--semantic-info)" });
+    else if (match[2]) parts.push({ text: match[2], color: "var(--accent-primary)" });
+    else if (match[3]) parts.push({ text: match[3], color: "var(--semantic-warning)" });
+    else if (match[4]) parts.push({ text: match[4], color: "var(--semantic-error)" });
+    else if (match[5]) parts.push({ text: match[5], color: "var(--semantic-neutral)" });
     lastIndex = match.index + match[0].length;
   }
   if (lastIndex < json.length) {
@@ -43,7 +44,7 @@ export function JsonView({ data }: { data: unknown }) {
 export function ResponseDisplay({ response, loading }: { response: ApiResponse | null; loading: boolean }) {
   if (loading) {
     return (
-      <div style={{ ...styles.response, textAlign: "center", color: "#888" }}>
+      <div style={{ ...styles.response, textAlign: "center", color: "var(--text-muted)" }}>
         Loading...
       </div>
     );
@@ -53,15 +54,11 @@ export function ResponseDisplay({ response, loading }: { response: ApiResponse |
   return (
     <div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 12 }}>
-        <span style={{
-          ...styles.badge,
-          ...(response.ok ? styles.badgeSuccess : styles.badgeError)
-        }}>
-          {response.status} {response.ok ? "OK" : "ERROR"}
-        </span>
-        <span style={{ fontSize: 12, color: "#666" }}>{response.duration}ms</span>
+        <StatusPill tone={response.ok ? "success" : "error"} label={`${response.status} ${response.ok ? "OK" : "ERROR"}`} />
+        <span style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 700 }}>{response.duration}ms</span>
       </div>
       <JsonView data={response.data} />
     </div>
   );
 }
+

@@ -13,38 +13,37 @@ import requests as http_requests
 from flask import Response, jsonify, request
 
 from config import (
-    EV_REAL_API_BASE,
-    EV_REAL_HOSTROOM_API_BASE,
-    EV_REAL_OCPP_API_BASE,
+    EVBUDDY_DEV_USERS_BASE,
+    EVBUDDY_DEV_HOST_ROOMS_BASE,
+    EVBUDDY_DEV_OCPP_BASE,
     EV_JWT_SECRET,
     EV_TIME_SCALE,
     EV_DEFAULT_SITE_ID,
     EV_DEFAULT_CHARGER_ID,
     EV_PRICING,
     EV_SESSIONS,
-    SERVICES,
-    MICROSERVICE_HOST,
-    SERVICE_STATUS_PATHS,
+    EVBUDDY_DEV_SERVICES,
+    EVBUDDY_DEV_HOST,
+    EVBUDDY_DEV_SERVICE_STATUS_PATHS,
+    normalize_service_key,
 )
+from src.infrastructure.http import BaseHttpClient
 
 
 # =============================================================================
 # JSON / HTTP helpers
 # =============================================================================
 JSON_HEADERS = {"Content-Type": "application/json"}
+HTTP_CLIENT = BaseHttpClient()
 
 
 def ev_now_iso():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def now_iso():
-    return ev_now_iso()
-
-
 def ev_http(method, url, *, params=None, body=None, timeout=10):
     headers = JSON_HEADERS if body is not None else None
-    return http_requests.request(
+    return HTTP_CLIENT.request(
         method,
         url,
         params=params,
@@ -83,15 +82,17 @@ def ev_list_from_response(data, *keys):
 # =============================================================================
 def ms_url(service_key, suffix=""):
     """Build URL for a microservice by key."""
-    svc = SERVICES[service_key]
-    return f"{MICROSERVICE_HOST}:{svc['port']}{svc['base']}{suffix}"
+    canonical_key = normalize_service_key(service_key)
+    svc = EVBUDDY_DEV_SERVICES[canonical_key]
+    return f"{EVBUDDY_DEV_HOST}:{svc['port']}{svc['base']}{suffix}"
 
 
 def service_status_url(service_key):
     """Build status URL for a microservice by key."""
-    svc = SERVICES[service_key]
-    status_path = SERVICE_STATUS_PATHS.get(service_key, f"{svc['base']}/status")
-    return f"{MICROSERVICE_HOST}:{svc['port']}{status_path}"
+    canonical_key = normalize_service_key(service_key)
+    svc = EVBUDDY_DEV_SERVICES[canonical_key]
+    status_path = EVBUDDY_DEV_SERVICE_STATUS_PATHS.get(canonical_key, f"{svc['base']}/status")
+    return f"{EVBUDDY_DEV_HOST}:{svc['port']}{status_path}"
 
 
 def with_query_params(url, **params):
@@ -133,11 +134,25 @@ def proxy_json_request(
     return jsonify(payload), resp.status_code
 
 
-def get_json_body(error="Request body required"):
+def get_json_body(error="Request body required", required_fields=None):
     data = request.get_json() or {}
     if not data:
         return None, (jsonify({"error": error}), 400)
+
+    if required_fields:
+        missing = [field for field in required_fields if data.get(field) in (None, "")]
+        if missing:
+            return None, (jsonify({"error": "Missing required fields", "missing": missing}), 400)
+
     return data, None
+
+
+def normalized_limit(default=50, minimum=1, maximum=500):
+    limit = request.args.get("limit", default, type=int)
+    if limit is None:
+        limit = default
+    limit = max(minimum, limit)
+    return min(limit, maximum)
 
 
 def ok_response(message=None, **payload):
@@ -148,24 +163,11 @@ def ok_response(message=None, **payload):
     return jsonify(data)
 
 
-def required_fields(data, fields):
-    missing = [field for field in fields if not data.get(field)]
-    if missing:
-        return jsonify({"ok": False, "error": "missing_fields", "required": fields}), 400
-    return None
-
-
-def require_field(data, field, message=None):
-    if not data.get(field):
-        return jsonify({"error": message or f"{field} is required"}), 400
-    return None
-
-
 # =============================================================================
 # EV Charging helpers
 # =============================================================================
-def ev_call_real_api(endpoint, body=None, method="POST"):
-    url = f"{EV_REAL_API_BASE}{endpoint}"
+def ev_call_dev_api(endpoint, body=None, method="POST"):
+    url = f"{EVBUDDY_DEV_USERS_BASE}{endpoint}"
     method = method.upper()
     methods_with_body = {"POST", "PUT", "PATCH", "DELETE"}
     if method not in {"GET", "POST", "PUT", "PATCH", "DELETE"}:
@@ -181,15 +183,15 @@ def ev_call_real_api(endpoint, body=None, method="POST"):
     return response.json()
 
 
-def ev_get_real_user_by_email(email):
+def ev_get_dev_user_by_email(email):
     try:
-        users = ev_call_real_api("/user/getByEmail", {"email": email}, "POST")
+        users = ev_call_dev_api("/user/getByEmail", {"email": email}, "POST")
         return users[0] if isinstance(users, list) and len(users) > 0 else None
     except Exception:
         return None
 
 
-def ev_get_real_users():
+def ev_get_dev_users():
     endpoints = [
         {"path": "/user", "method": "GET"},
         {"path": "/users", "method": "GET"},
@@ -199,7 +201,7 @@ def ev_get_real_users():
 
     for ep in endpoints:
         try:
-            users = ev_call_real_api(ep["path"], {}, ep["method"])
+            users = ev_call_dev_api(ep["path"], {}, ep["method"])
             if isinstance(users, list):
                 return users
         except Exception:
@@ -208,13 +210,26 @@ def ev_get_real_users():
     return []
 
 
+# Legacy wrappers for backward compatibility.
+def ev_call_real_api(endpoint, body=None, method="POST"):
+    return ev_call_dev_api(endpoint, body=body, method=method)
+
+
+def ev_get_real_user_by_email(email):
+    return ev_get_dev_user_by_email(email)
+
+
+def ev_get_real_users():
+    return ev_get_dev_users()
+
+
 def ev_find_guest_reservation(room, name, host=None):
     """
     Find reservation by room + last name, and ensure today is within stay window.
     Uses GET /hostrooms and filters locally.
     """
     try:
-        url = f"{EV_REAL_HOSTROOM_API_BASE}/hostrooms"
+        url = f"{EVBUDDY_DEV_HOST_ROOMS_BASE}/hostrooms"
         response = ev_http("GET", url, timeout=10)
 
         if not response.ok:
@@ -324,7 +339,7 @@ def ev_ocpp_get_connector_status(charge_point_id, connector_id, use_cache=True):
             return cached["data"]
 
     try:
-        url = f"{EV_REAL_OCPP_API_BASE}/api/connectors"
+        url = f"{EVBUDDY_DEV_OCPP_BASE}/api/connectors"
         params = {"charge_point_id": str(charge_point_id)}
         response = ev_http("GET", url, params=params, timeout=10)
 
@@ -360,7 +375,7 @@ def ev_ocpp_get_connector_status(charge_point_id, connector_id, use_cache=True):
 
 def ev_ocpp_remote_start(charge_point_id, connector_id, id_tag="HOTEL-GUEST"):
     try:
-        url = f"{EV_REAL_OCPP_API_BASE}/api/operations/remote-start"
+        url = f"{EVBUDDY_DEV_OCPP_BASE}/api/operations/remote-start"
         body = {"charge_point_id": str(charge_point_id), "connector_id": int(connector_id), "id_tag": str(id_tag)}
         response = ev_http("POST", url, body=body, timeout=15)
 
@@ -374,7 +389,7 @@ def ev_ocpp_remote_start(charge_point_id, connector_id, id_tag="HOTEL-GUEST"):
 
 def ev_ocpp_remote_stop(charge_point_id, connector_id, transaction_id, id_tag="HOTEL-GUEST"):
     try:
-        url = f"{EV_REAL_OCPP_API_BASE}/api/operations/remote-stop"
+        url = f"{EVBUDDY_DEV_OCPP_BASE}/api/operations/remote-stop"
         body = {
             "charge_point_id": str(charge_point_id),
             "connector_id": int(connector_id),

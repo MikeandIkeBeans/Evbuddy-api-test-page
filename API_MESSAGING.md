@@ -1,8 +1,11 @@
-# Messaging Service API (Port 9011)
+# Messaging Service API
 
 Central Messaging Service for threads, messages, participants, attachments, status events, and templates.
 
-**Base URL:** `http://{host}:9011`
+**Proxy Base URL:** `http://127.0.0.1:5000`
+
+All paths below are shown with the Flask proxy prefix `/api/messaging`.
+The proxy forwards to the upstream Central Messaging service on port `9011`.
 
 All requests and responses use `Content-Type: application/json`.
 
@@ -27,7 +30,7 @@ All requests and responses use `Content-Type: application/json`.
 ### List Threads
 
 ```
-GET /threads
+GET /api/messaging/threads
 ```
 
 **Query Parameters** (all optional):
@@ -79,7 +82,7 @@ GET /threads
 ### Create Thread
 
 ```
-POST /threads
+POST /api/messaging/threads
 ```
 
 **Request Body:**
@@ -120,7 +123,7 @@ POST /threads
 ### Get Thread
 
 ```
-GET /threads/{threadId}
+GET /api/messaging/threads/{threadId}
 ```
 
 **Response** `200 OK`: Single thread object (same shape as list item).
@@ -140,7 +143,7 @@ GET /threads/{threadId}
 ### Update Thread
 
 ```
-PATCH /threads/{threadId}
+PATCH /api/messaging/threads/{threadId}
 ```
 
 **Request Body** (all fields optional):
@@ -161,7 +164,7 @@ PATCH /threads/{threadId}
 ### Delete Thread
 
 ```
-DELETE /threads/{threadId}
+DELETE /api/messaging/threads/{threadId}
 ```
 
 **Response** `204 No Content`
@@ -173,7 +176,7 @@ DELETE /threads/{threadId}
 ### List Messages
 
 ```
-GET /threads/{threadId}/messages
+GET /api/messaging/threads/{threadId}/messages
 ```
 
 **Query Parameters** (all optional):
@@ -214,7 +217,7 @@ GET /threads/{threadId}/messages
 ### Create Message
 
 ```
-POST /threads/{threadId}/messages
+POST /api/messaging/threads/{threadId}/messages
 ```
 
 **Request Body:**
@@ -235,7 +238,7 @@ POST /threads/{threadId}/messages
 ### Get Message
 
 ```
-GET /threads/{threadId}/messages/{messageId}
+GET /api/messaging/threads/{threadId}/messages/{messageId}
 ```
 
 **Response** `200 OK`: Single message object.
@@ -245,7 +248,7 @@ GET /threads/{threadId}/messages/{messageId}
 ### Update Message
 
 ```
-PATCH /threads/{threadId}/messages/{messageId}
+PATCH /api/messaging/threads/{threadId}/messages/{messageId}
 ```
 
 **Request Body** (all fields optional):
@@ -264,7 +267,7 @@ PATCH /threads/{threadId}/messages/{messageId}
 ### Delete Message
 
 ```
-DELETE /threads/{threadId}/messages/{messageId}
+DELETE /api/messaging/threads/{threadId}/messages/{messageId}
 ```
 
 **Response** `204 No Content`
@@ -276,7 +279,7 @@ DELETE /threads/{threadId}/messages/{messageId}
 ### List Participants
 
 ```
-GET /threads/{threadId}/participants
+GET /api/messaging/threads/{threadId}/participants
 ```
 
 **Response** `200 OK`:
@@ -302,7 +305,7 @@ GET /threads/{threadId}/participants
 ### Add Participant
 
 ```
-POST /threads/{threadId}/participants
+POST /api/messaging/threads/{threadId}/participants
 ```
 
 **Request Body:**
@@ -322,7 +325,7 @@ POST /threads/{threadId}/participants
 ### Get Participant
 
 ```
-GET /threads/{threadId}/participants/{accountId}
+GET /api/messaging/threads/{threadId}/participants/{accountId}
 ```
 
 **Response** `200 OK`: Single participant object.
@@ -332,7 +335,7 @@ GET /threads/{threadId}/participants/{accountId}
 ### Update Participant
 
 ```
-PATCH /threads/{threadId}/participants/{accountId}
+PATCH /api/messaging/threads/{threadId}/participants/{accountId}
 ```
 
 **Request Body** (all fields optional):
@@ -353,7 +356,7 @@ PATCH /threads/{threadId}/participants/{accountId}
 ### Remove Participant
 
 ```
-DELETE /threads/{threadId}/participants/{accountId}
+DELETE /api/messaging/threads/{threadId}/participants/{accountId}
 ```
 
 **Response** `204 No Content`
@@ -365,7 +368,7 @@ DELETE /threads/{threadId}/participants/{accountId}
 ### List Attachments
 
 ```
-GET /threads/{threadId}/messages/{messageId}/attachments
+GET /api/messaging/threads/{threadId}/messages/{messageId}/attachments
 ```
 
 **Response** `200 OK`:
@@ -392,7 +395,7 @@ GET /threads/{threadId}/messages/{messageId}/attachments
 ### Create Attachment
 
 ```
-POST /threads/{threadId}/messages/{messageId}/attachments
+POST /api/messaging/threads/{threadId}/messages/{messageId}/attachments
 ```
 
 **Request Body:**
@@ -441,7 +444,7 @@ POST /threads/{threadId}/messages/{messageId}/attachments
 ### Get Attachment
 
 ```
-GET /threads/{threadId}/messages/{messageId}/attachments/{attachmentId}
+GET /api/messaging/threads/{threadId}/messages/{messageId}/attachments/{attachmentId}
 ```
 
 **Response** `200 OK`: Single attachment object (includes resolved `storageUrl`).
@@ -451,7 +454,7 @@ GET /threads/{threadId}/messages/{messageId}/attachments/{attachmentId}
 ### Delete Attachment
 
 ```
-DELETE /threads/{threadId}/messages/{messageId}/attachments/{attachmentId}
+DELETE /api/messaging/threads/{threadId}/messages/{messageId}/attachments/{attachmentId}
 ```
 
 **Response** `204 No Content`
@@ -465,7 +468,7 @@ Status events record thread state transitions and enforce a state machine.
 ### List Status Events
 
 ```
-GET /threads/{threadId}/status-events
+GET /api/messaging/threads/{threadId}/status-events
 ```
 
 **Query Parameters:**
@@ -504,7 +507,7 @@ GET /threads/{threadId}/status-events
 ### Create Status Event
 
 ```
-POST /threads/{threadId}/status-events
+POST /api/messaging/threads/{threadId}/status-events
 ```
 
 Creates a status transition. Validates the state machine and updates `thread.status` automatically.
@@ -526,7 +529,7 @@ Creates a status transition. Validates the state machine and updates `thread.sta
 ### Get Status Event
 
 ```
-GET /threads/{threadId}/status-events/{eventId}
+GET /api/messaging/threads/{threadId}/status-events/{eventId}
 ```
 
 **Response** `200 OK`: Single status event object.
@@ -540,7 +543,7 @@ Reusable message templates (e.g. canned support responses, approval workflows).
 ### List Templates
 
 ```
-GET /templates
+GET /api/messaging/templates
 ```
 
 **Query Parameters** (all optional):
@@ -577,7 +580,7 @@ GET /templates
 ### Create Template
 
 ```
-POST /templates
+POST /api/messaging/templates
 ```
 
 **Request Body:**
@@ -599,7 +602,7 @@ POST /templates
 ### Get Template by ID
 
 ```
-GET /templates/{templateId}
+GET /api/messaging/templates/{templateId}
 ```
 
 **Response** `200 OK`: Single template object.
@@ -609,7 +612,7 @@ GET /templates/{templateId}
 ### Get Template by Key
 
 ```
-GET /templates/key/{key}
+GET /api/messaging/templates/key/{key}
 ```
 
 **Response** `200 OK`: Single template object matching the unique key.
@@ -619,7 +622,7 @@ GET /templates/key/{key}
 ### Update Template
 
 ```
-PATCH /templates/{templateId}
+PATCH /api/messaging/templates/{templateId}
 ```
 
 **Request Body** (all fields optional):
@@ -639,7 +642,7 @@ PATCH /templates/{templateId}
 ### Delete Template
 
 ```
-DELETE /templates/{templateId}
+DELETE /api/messaging/templates/{templateId}
 ```
 
 **Response** `204 No Content`

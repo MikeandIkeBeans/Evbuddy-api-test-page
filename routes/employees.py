@@ -4,7 +4,7 @@ Employee CRUD, site assignments, and permissions routes.
 
 from flask import Blueprint
 
-from config import EV_REAL_BUSINESS_API_BASE
+from config import EVBUDDY_DEV_BUSINESS_BASE
 from helpers import get_json_body, proxy_json_request
 
 employees_bp = Blueprint("employees", __name__)
@@ -19,7 +19,7 @@ def get_business_employees(business_id):
     """List all employees of a business."""
     return proxy_json_request(
         "GET",
-        f"{EV_REAL_BUSINESS_API_BASE}/businesses/{business_id}/employees",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/businesses/{business_id}/employees",
         error_message="Failed to fetch employees",
     )
 
@@ -29,7 +29,7 @@ def get_employee(employee_id):
     """Get a single employee."""
     return proxy_json_request(
         "GET",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}",
         error_message="Failed to fetch employee",
         not_found="Employee not found",
     )
@@ -44,7 +44,7 @@ def create_employee(business_id):
     data["business_id"] = business_id
     return proxy_json_request(
         "POST",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees",
         body=data,
         error_message="Failed to create employee",
     )
@@ -58,7 +58,7 @@ def update_employee(employee_id):
         return err
     return proxy_json_request(
         "PUT",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}",
         body=data,
         error_message="Failed to update employee",
         not_found="Employee not found",
@@ -70,7 +70,7 @@ def delete_employee(employee_id):
     """Delete an employee."""
     return proxy_json_request(
         "DELETE",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}",
         error_message="Failed to delete employee",
         not_found="Employee not found",
         empty_message="Employee deleted",
@@ -86,7 +86,7 @@ def get_employee_sites(employee_id):
     """Get all sites an employee is assigned to."""
     return proxy_json_request(
         "GET",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/sites",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/sites",
         error_message="Failed to fetch employee sites",
     )
 
@@ -100,7 +100,7 @@ def assign_employee_to_site(employee_id):
     data["employee_id"] = employee_id
     return proxy_json_request(
         "POST",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/sites",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/sites",
         body=data,
         error_message="Failed to assign employee to site",
     )
@@ -114,7 +114,7 @@ def update_employee_site(employee_id, site_id):
         return err
     return proxy_json_request(
         "PUT",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/sites/{site_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/sites/{site_id}",
         body=data,
         error_message="Failed to update site assignment",
     )
@@ -125,7 +125,7 @@ def remove_employee_from_site(employee_id, site_id):
     """Remove an employee from a site."""
     return proxy_json_request(
         "DELETE",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/sites/{site_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/sites/{site_id}",
         error_message="Failed to remove employee from site",
         empty_message="Employee removed from site",
     )
@@ -136,7 +136,7 @@ def get_site_employees(site_id):
     """Get all employees assigned to a site."""
     return proxy_json_request(
         "GET",
-        f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/employees",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/employees",
         error_message="Failed to fetch site employees",
     )
 
@@ -150,7 +150,7 @@ def assign_existing_employee_to_site(site_id):
     data["site_id"] = site_id
     return proxy_json_request(
         "POST",
-        f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/employees",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/employees",
         body=data,
         error_message="Failed to assign employee to site",
     )
@@ -165,7 +165,7 @@ def get_employee_permissions(employee_id):
     """Get all permissions for an employee."""
     return proxy_json_request(
         "GET",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/permissions",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/permissions",
         error_message="Failed to fetch permissions",
     )
 
@@ -179,7 +179,7 @@ def grant_employee_permission(employee_id):
     data["employee_id"] = employee_id
     return proxy_json_request(
         "POST",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/permissions",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/permissions",
         body=data,
         error_message="Failed to grant permission",
     )
@@ -190,7 +190,7 @@ def revoke_employee_permission(employee_id, permission_id):
     """Revoke a specific permission."""
     return proxy_json_request(
         "DELETE",
-        f"{EV_REAL_BUSINESS_API_BASE}/employees/{employee_id}/permissions/{permission_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/employees/{employee_id}/permissions/{permission_id}",
         error_message="Failed to revoke permission",
         empty_message="Permission revoked",
     )

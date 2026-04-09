@@ -57,34 +57,3 @@ export interface ChargingSession {
   transactionId?: number;
   source?: string;
 }
-
-export interface NearbyCharger {
-  id?: number;
-  stationName?: string;
-  name?: string;
-  statusCode?: string;
-  status?: string;
-  streetAddress?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
-  distanceMiles?: number;
-  evNetwork?: string;
-  evConnectorTypes?: string[] | string;
-  latitude?: number;
-  longitude?: number;
-  restrictedAccess?: string;
-  country?: string;
-  max_power_kw?: number;
-  host_site_id?: number;
-}
-
-export interface NearbySearchResults {
-  items?: NearbyCharger[];
-  chargers?: NearbyCharger[];
-  data?: NearbyCharger[];
-  total?: number;
-  radius_miles?: number;
-  radius_meters?: number;
-  unfiltered_total?: number;
-}

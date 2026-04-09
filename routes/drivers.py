@@ -4,7 +4,7 @@ Driver site access, invitations, audit log, and auth check routes.
 
 from flask import Blueprint, jsonify, request
 
-from config import EV_REAL_BUSINESS_API_BASE
+from config import EVBUDDY_DEV_BUSINESS_BASE
 from helpers import get_json_body, proxy_json_request, with_query_params
 
 drivers_bp = Blueprint("drivers", __name__)
@@ -17,7 +17,7 @@ drivers_bp = Blueprint("drivers", __name__)
 @drivers_bp.get("/api/sites/<int:site_id>/drivers")
 def get_site_drivers(site_id):
     """Get all drivers with access to this site."""
-    return proxy_json_request("GET", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/drivers",
+    return proxy_json_request("GET", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/drivers",
                               error_message="Failed to fetch site drivers")
 
 
@@ -27,7 +27,7 @@ def invite_driver(site_id):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/drivers/invite",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/drivers/invite",
                               body=data, error_message="Failed to invite driver")
 
 
@@ -37,7 +37,7 @@ def request_site_access(site_id):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/access-request",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/access-request",
                               body=data, error_message="Failed to submit access request")
 
 
@@ -47,7 +47,7 @@ def approve_driver(site_id, driver_id):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/drivers/{driver_id}/approve",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/drivers/{driver_id}/approve",
                               body=data, error_message="Failed to approve driver")
 
 
@@ -57,7 +57,7 @@ def block_driver(site_id, driver_id):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/drivers/{driver_id}/block",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/drivers/{driver_id}/block",
                               body=data, error_message="Failed to block driver")
 
 
@@ -67,7 +67,7 @@ def revoke_driver(site_id, driver_id):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/drivers/{driver_id}/revoke",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/drivers/{driver_id}/revoke",
                               body=data, error_message="Failed to revoke driver")
 
 
@@ -77,7 +77,7 @@ def unblock_driver(site_id, driver_id):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/sites/{site_id}/drivers/{driver_id}/unblock",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/drivers/{driver_id}/unblock",
                               body=data, error_message="Failed to unblock driver")
 
 
@@ -92,7 +92,7 @@ def get_my_site_access():
     if not driver_id:
         return jsonify({"error": "driver_user_id query param required"}), 400
     url = with_query_params(
-        f"{EV_REAL_BUSINESS_API_BASE}/me/site-access",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/me/site-access",
         driver_user_id=driver_id,
     )
     return proxy_json_request("GET", url, error_message="Failed to fetch site access")
@@ -105,7 +105,7 @@ def get_my_all_site_access():
     if not driver_id:
         return jsonify({"error": "driver_user_id query param required"}), 400
     url = with_query_params(
-        f"{EV_REAL_BUSINESS_API_BASE}/me/site-access/all",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/me/site-access/all",
         driver_user_id=driver_id,
     )
     return proxy_json_request("GET", url, error_message="Failed to fetch access records")
@@ -118,7 +118,7 @@ def get_my_all_site_access():
 @drivers_bp.get("/api/invitations/<token>")
 def get_invitation(token):
     """Get invitation details by token."""
-    return proxy_json_request("GET", f"{EV_REAL_BUSINESS_API_BASE}/invitations/{token}",
+    return proxy_json_request("GET", f"{EVBUDDY_DEV_BUSINESS_BASE}/invitations/{token}",
                               error_message="Failed to fetch invitation",
                               not_found="Invitation not found")
 
@@ -129,7 +129,7 @@ def accept_invitation(token):
     data, err = get_json_body()
     if err:
         return err
-    return proxy_json_request("POST", f"{EV_REAL_BUSINESS_API_BASE}/invitations/{token}/accept",
+    return proxy_json_request("POST", f"{EVBUDDY_DEV_BUSINESS_BASE}/invitations/{token}/accept",
                               body=data, error_message="Failed to accept invitation")
 
 
@@ -141,7 +141,7 @@ def accept_invitation(token):
 def get_audit_log():
     """Get audit log entries."""
     qs = request.query_string.decode()
-    url = f"{EV_REAL_BUSINESS_API_BASE}/audit-log"
+    url = f"{EVBUDDY_DEV_BUSINESS_BASE}/audit-log"
     if qs:
         url += f"?{qs}"
     return proxy_json_request("GET", url, error_message="Failed to fetch audit log")
@@ -158,7 +158,7 @@ def check_can_manage_site(site_id):
     if not user_id:
         return jsonify({"error": "user_id query param required"}), 400
     url = with_query_params(
-        f"{EV_REAL_BUSINESS_API_BASE}/auth/can-manage-site/{site_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/auth/can-manage-site/{site_id}",
         user_id=user_id,
     )
     return proxy_json_request(
@@ -175,7 +175,7 @@ def check_can_use_site(site_id):
     if not driver_id:
         return jsonify({"error": "driver_user_id query param required"}), 400
     url = with_query_params(
-        f"{EV_REAL_BUSINESS_API_BASE}/auth/can-use-site/{site_id}",
+        f"{EVBUDDY_DEV_BUSINESS_BASE}/auth/can-use-site/{site_id}",
         driver_user_id=driver_id,
         visibility=visibility,
     )

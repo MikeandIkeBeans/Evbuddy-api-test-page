@@ -1,0 +1,308 @@
+{
+  "host": "http://appdev.evbuddy.net",
+  "generated_at": "2026-04-07T08:26:17.912271+00:00",
+  "results": [
+    {
+      "service": "users",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9000/user/status",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "preview": "Service is running"
+    },
+    {
+      "service": "users",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9000/user",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "list",
+      "count": 125,
+      "sample_keys": [
+        "address",
+        "city",
+        "country",
+        "createdAt",
+        "default_billing_profile_id",
+        "display_name",
+        "driver_notes",
+        "email",
+        "first_name",
+        "id",
+        "is_active",
+        "is_admin"
+      ]
+    },
+    {
+      "service": "user_vehicles",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "list",
+      "count": 22,
+      "sample_keys": [
+        "color",
+        "created_at",
+        "id",
+        "is_primary",
+        "license_plate",
+        "nickname",
+        "updated_at",
+        "user_id",
+        "vehicle_model_id",
+        "vehicle_year",
+        "vin"
+      ]
+    },
+    {
+      "service": "host_sites",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9004/host-sites/status",
+      "status": 200,
+      "ok": true,
+      "content_type": "text/plain;charset=UTF-8",
+      "attempts": 1,
+      "preview": "Service is running"
+    },
+    {
+      "service": "host_sites",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9004/host-sites",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "list",
+      "count": 394,
+      "sample_keys": [
+        "address_line1",
+        "address_line2",
+        "city",
+        "country",
+        "created_at",
+        "host_id",
+        "id",
+        "latitude",
+        "longitude",
+        "name",
+        "postal_code",
+        "region"
+      ]
+    },
+    {
+      "service": "host_sites",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9004/host-sites?host_id=1",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "list",
+      "count": 7,
+      "sample_keys": [
+        "address_line1",
+        "address_line2",
+        "city",
+        "country",
+        "created_at",
+        "host_id",
+        "id",
+        "latitude",
+        "longitude",
+        "name",
+        "postal_code",
+        "region"
+      ]
+    },
+    {
+      "service": "operating_hours",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9008/actuator/health",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/vnd.spring-boot.actuator.v3+json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "status"
+      ]
+    },
+    {
+      "service": "operating_hours",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9008/operating-hours",
+      "status": 500,
+      "ok": false,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "error"
+      ]
+    },
+    {
+      "service": "messaging",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9011/actuator/health",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/vnd.spring-boot.actuator.v3+json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "components",
+        "status"
+      ]
+    },
+    {
+      "service": "messaging",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9011/threads",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "data",
+        "pagination"
+      ],
+      "count": 20,
+      "sample_keys": [
+        "assignedToAccountId",
+        "createdAt",
+        "createdByAccountId",
+        "id",
+        "lastMessageAt",
+        "priority",
+        "relatedEntityId",
+        "relatedEntityType",
+        "status",
+        "subject",
+        "threadType",
+        "updatedAt"
+      ]
+    },
+    {
+      "service": "messaging",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9011/templates",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "data",
+        "pagination"
+      ],
+      "count": 14,
+      "sample_keys": [
+        "body",
+        "category",
+        "createdAt",
+        "id",
+        "isActive",
+        "templateKey",
+        "title"
+      ]
+    },
+    {
+      "service": "chargers",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9017/chargers/status",
+      "status": 200,
+      "ok": true,
+      "content_type": "text/plain;charset=UTF-8",
+      "attempts": 1,
+      "preview": "Service is running"
+    },
+    {
+      "service": "services_catalog",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9026/services",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "list",
+      "count": 7,
+      "sample_keys": [
+        "basePriceCents",
+        "category",
+        "createdAt",
+        "description",
+        "id",
+        "isActive",
+        "pricingType",
+        "serviceCode",
+        "serviceName",
+        "updatedAt"
+      ]
+    },
+    {
+      "service": "ocpp",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "count",
+        "data",
+        "success"
+      ],
+      "count": 19,
+      "sample_keys": [
+        "charge_point_id",
+        "charge_point_model",
+        "charge_point_serial_number",
+        "charge_point_vendor",
+        "created_at",
+        "firmware_version",
+        "id",
+        "last_heartbeat",
+        "online",
+        "registration_status",
+        "updated_at"
+      ]
+    },
+    {
+      "service": "ocpp",
+      "method": "GET",
+      "url": "http://appdev.evbuddy.net:9029/api/connectors",
+      "status": 200,
+      "ok": true,
+      "content_type": "application/json",
+      "attempts": 1,
+      "payload_type": "dict",
+      "keys": [
+        "count",
+        "data",
+        "success"
+      ],
+      "count": 47,
+      "sample_keys": [
+        "charge_point_id",
+        "connector_id",
+        "error_code",
+        "id",
+        "id_tag",
+        "info",
+        "is_charging",
+        "start_timestamp",
+        "status",
+        "timestamp"
+      ]
+    }
+  ]
+}

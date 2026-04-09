@@ -1,0 +1,141 @@
+{
+  "host": "http://appdev.evbuddy.net",
+  "generated_at": "2026-04-07T07:11:04.529416+00:00",
+  "interval_seconds": 1,
+  "rounds": 2,
+  "summary": {
+    "total_checks": 12,
+    "ok_checks": 12,
+    "ok_ratio": 1.0,
+    "per_target": {
+      "users_status": {
+        "ok": 2,
+        "total": 2
+      },
+      "host_sites_status": {
+        "ok": 2,
+        "total": 2
+      },
+      "operating_health": {
+        "ok": 2,
+        "total": 2
+      },
+      "messaging_health": {
+        "ok": 2,
+        "total": 2
+      },
+      "chargers_status": {
+        "ok": 2,
+        "total": 2
+      },
+      "ocpp_charge_points": {
+        "ok": 2,
+        "total": 2
+      }
+    }
+  },
+  "runs": [
+    {
+      "timestamp": "2026-04-07T07:11:01.253821+00:00",
+      "checks": [
+        {
+          "name": "users_status",
+          "url": "http://appdev.evbuddy.net:9000/user/status",
+          "timestamp": "2026-04-07T07:11:01.253821+00:00",
+          "status": 200,
+          "ok": true,
+          "preview": "Service is running"
+        },
+        {
+          "name": "host_sites_status",
+          "url": "http://appdev.evbuddy.net:9004/host-sites/status",
+          "timestamp": "2026-04-07T07:11:01.253821+00:00",
+          "status": 200,
+          "ok": true,
+          "preview": "Service is running"
+        },
+        {
+          "name": "operating_health",
+          "url": "http://appdev.evbuddy.net:9008/actuator/health",
+          "timestamp": "2026-04-07T07:11:01.253821+00:00",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "name": "messaging_health",
+          "url": "http://appdev.evbuddy.net:9011/actuator/health",
+          "timestamp": "2026-04-07T07:11:01.253821+00:00",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "name": "chargers_status",
+          "url": "http://appdev.evbuddy.net:9017/chargers/status",
+          "timestamp": "2026-04-07T07:11:01.253821+00:00",
+          "status": 200,
+          "ok": true,
+          "preview": "Service is running"
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "timestamp": "2026-04-07T07:11:01.253821+00:00",
+          "status": 200,
+          "ok": true,
+          "count": 19
+        }
+      ]
+    },
+    {
+      "timestamp": "2026-04-07T07:11:03.397608+00:00",
+      "checks": [
+        {
+          "name": "users_status",
+          "url": "http://appdev.evbuddy.net:9000/user/status",
+          "timestamp": "2026-04-07T07:11:03.397608+00:00",
+          "status": 200,
+          "ok": true,
+          "preview": "Service is running"
+        },
+        {
+          "name": "host_sites_status",
+          "url": "http://appdev.evbuddy.net:9004/host-sites/status",
+          "timestamp": "2026-04-07T07:11:03.397608+00:00",
+          "status": 200,
+          "ok": true,
+          "preview": "Service is running"
+        },
+        {
+          "name": "operating_health",
+          "url": "http://appdev.evbuddy.net:9008/actuator/health",
+          "timestamp": "2026-04-07T07:11:03.397608+00:00",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "name": "messaging_health",
+          "url": "http://appdev.evbuddy.net:9011/actuator/health",
+          "timestamp": "2026-04-07T07:11:03.397608+00:00",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "name": "chargers_status",
+          "url": "http://appdev.evbuddy.net:9017/chargers/status",
+          "timestamp": "2026-04-07T07:11:03.397608+00:00",
+          "status": 200,
+          "ok": true,
+          "preview": "Service is running"
+        },
+        {
+          "name": "ocpp_charge_points",
+          "url": "http://appdev.evbuddy.net:9029/api/charge-points",
+          "timestamp": "2026-04-07T07:11:03.397608+00:00",
+          "status": 200,
+          "ok": true,
+          "count": 19
+        }
+      ]
+    }
+  ]
+}

@@ -6,7 +6,7 @@ Lightweight proxy to the OCPP Central System for the EVB-V2V-001-JP charge point
 
 from flask import Blueprint, jsonify, request
 
-from config import EV_REAL_OCPP_API_BASE
+from config import EVBUDDY_DEV_OCPP_BASE
 from helpers import ev_http, ev_ocpp_remote_start, ev_ocpp_remote_stop
 
 v2v_bp = Blueprint("v2v", __name__)
@@ -18,12 +18,12 @@ CHARGE_POINT_ID = "EVB-V2V-001-JP"
 def v2v_status():
     """Get charge point metadata and connector statuses."""
     try:
-        cp_resp = ev_http("GET", f"{EV_REAL_OCPP_API_BASE}/api/charge-points", timeout=8)
+        cp_resp = ev_http("GET", f"{EVBUDDY_DEV_OCPP_BASE}/api/charge-points", timeout=8)
         charge_points = cp_resp.json() if cp_resp.ok else {}
         cp_list = charge_points.get("data", charge_points) if isinstance(charge_points, dict) else charge_points
         charger = next((cp for cp in cp_list if cp.get("charge_point_id") == CHARGE_POINT_ID), None)
 
-        conn_resp = ev_http("GET", f"{EV_REAL_OCPP_API_BASE}/api/connectors?charge_point_id={CHARGE_POINT_ID}", timeout=8)
+        conn_resp = ev_http("GET", f"{EVBUDDY_DEV_OCPP_BASE}/api/connectors?charge_point_id={CHARGE_POINT_ID}", timeout=8)
         conn_data = conn_resp.json() if conn_resp.ok else []
         connectors = conn_data.get("data", conn_data) if isinstance(conn_data, dict) else conn_data
 
@@ -40,7 +40,7 @@ def v2v_reset():
     try:
         resp = ev_http(
             "POST",
-            f"{EV_REAL_OCPP_API_BASE}/api/operations/reset",
+            f"{EVBUDDY_DEV_OCPP_BASE}/api/operations/reset",
             body={"charge_point_id": CHARGE_POINT_ID, "type": reset_type},
             timeout=15,
         )
@@ -55,7 +55,7 @@ def v2v_reset():
 def v2v_sessions():
     """Get recent sessions for the V2V charge point."""
     try:
-        resp = ev_http("GET", f"{EV_REAL_OCPP_API_BASE}/api/sessions?chargePointId={CHARGE_POINT_ID}", timeout=8)
+        resp = ev_http("GET", f"{EVBUDDY_DEV_OCPP_BASE}/api/sessions?chargePointId={CHARGE_POINT_ID}", timeout=8)
         if resp.ok:
             data = resp.json()
             sessions = data.get("sessions", data.get("data", []))

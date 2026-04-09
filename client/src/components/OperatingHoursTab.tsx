@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "../styles";
 import { apiCall, EVBUDDY_API, API_BASE } from "../utils/api";
 import type { HostSite, SiteCharger, DaySchedule, HoursException, ScopeType } from "../types";
+import { Button, Panel, SectionHeader } from "./primitives";
 
 const DAY_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -181,8 +182,8 @@ export default function OperatingHoursTab() {
   return (
     <div>
       {/* ---- Scope selector ---- */}
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>🕐 Operating Hours</div>
+      <Panel>
+        <SectionHeader icon="🕐" title="Operating Hours" />
         <div style={styles.row}>
           <div style={{ flex: "0 0 140px" }}>
             <label style={styles.label}>Scope Type</label>
@@ -254,9 +255,9 @@ export default function OperatingHoursTab() {
             <label style={styles.label}>Timezone</label>
             <input style={styles.input} value={timezone} onChange={e => setTimezone(e.target.value)} />
           </div>
-          <button style={styles.button} onClick={fetchHours} disabled={hoursLoading}>
+          <Button variant="primary" style={styles.button} onClick={fetchHours} disabled={hoursLoading}>
             {hoursLoading ? "Loading…" : "Load Hours"}
-          </button>
+          </Button>
         </div>
         {hoursMsg && (
           <div style={{
@@ -265,11 +266,11 @@ export default function OperatingHoursTab() {
             marginBottom: 12,
           }}>{hoursMsg.text}</div>
         )}
-      </div>
+      </Panel>
 
       {/* ---- Weekly schedule ---- */}
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>📅 Weekly Schedule</div>
+      <Panel>
+        <SectionHeader icon="📅" title="Weekly Schedule" />
         <table style={styles.table}>
           <thead>
             <tr>
@@ -288,10 +289,7 @@ export default function OperatingHoursTab() {
                 <td style={styles.td}>
                   <button
                     style={{
-                      ...styles.buttonSecondary,
-                      background: day.is_closed ? "#ff475733" : "#00d4aa33",
-                      color: day.is_closed ? "#ff4757" : "#00d4aa",
-                      border: "none",
+                      ...(day.is_closed ? styles.buttonDestructive : styles.chipSelected),
                       minWidth: 80,
                     }}
                     onClick={() => updateDay(idx, "is_closed", !day.is_closed)}
@@ -324,15 +322,15 @@ export default function OperatingHoursTab() {
           </tbody>
         </table>
         <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
-          <button style={styles.button} onClick={saveHours} disabled={hoursLoading}>
+          <Button variant="primary" style={styles.button} onClick={saveHours} disabled={hoursLoading}>
             {hoursLoading ? "Saving…" : "💾 Save Hours"}
-          </button>
+          </Button>
         </div>
-      </div>
+      </Panel>
 
       {/* ---- Exceptions ---- */}
-      <div style={styles.card}>
-        <div style={styles.cardTitle}>📌 Exceptions (Holidays / Overrides)</div>
+      <Panel>
+        <SectionHeader icon="📌" title="Exceptions (Holidays / Overrides)" />
 
         {/* Date range + fetch */}
         <div style={styles.row}>
@@ -344,9 +342,9 @@ export default function OperatingHoursTab() {
             <label style={styles.label}>To</label>
             <input type="date" style={styles.input} value={excTo} onChange={e => setExcTo(e.target.value)} />
           </div>
-          <button style={styles.button} onClick={fetchExceptions} disabled={excLoading}>
+          <Button variant="primary" style={styles.button} onClick={fetchExceptions} disabled={excLoading}>
             {excLoading ? "Loading…" : "Load Exceptions"}
-          </button>
+          </Button>
         </div>
 
         {excMsg && (
@@ -389,8 +387,8 @@ export default function OperatingHoursTab() {
         )}
 
         {/* Add exception form */}
-        <div style={{ borderTop: "1px solid #333", paddingTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: "#ccc" }}>Add Exception</div>
+        <div style={{ borderTop: "1px solid var(--line-soft)", paddingTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text-secondary)" }}>Add Exception</div>
           <div style={styles.row}>
             <div style={{ flex: "0 0 160px" }}>
               <label style={styles.label}>Date</label>
@@ -421,12 +419,13 @@ export default function OperatingHoursTab() {
               <input style={styles.input} placeholder="e.g. Independence Day" value={newExcNote}
                 onChange={e => setNewExcNote(e.target.value)} />
             </div>
-            <button style={styles.button} onClick={addException} disabled={addExcLoading}>
+            <Button variant="primary" style={styles.button} onClick={addException} disabled={addExcLoading}>
               {addExcLoading ? "Adding…" : "➕ Add Exception"}
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
+      </Panel>
     </div>
   );
 }
+

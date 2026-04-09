@@ -6,12 +6,12 @@ Covers: Threads, Messages, Participants, Attachments, Status-Events, Templates.
 
 from flask import Blueprint, request, jsonify
 
-from config import EV_REAL_MESSAGING_API_BASE
+from config import EVBUDDY_DEV_MESSAGING_BASE
 from helpers import get_json_body, proxy_json_request, with_query_params
 
 messaging_bp = Blueprint("messaging", __name__)
 
-BASE = EV_REAL_MESSAGING_API_BASE
+BASE = EVBUDDY_DEV_MESSAGING_BASE
 
 
 # ── Threads ──────────────────────────────────────────────────────────────────

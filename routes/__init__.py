@@ -13,6 +13,7 @@ from .invites import invites_bp
 from .operating_hours import operating_hours_bp
 from .messaging import messaging_bp
 from .v2v import v2v_bp
+from .experience import experience_bp
 
 ALL_BLUEPRINTS = [
     pages_bp,
@@ -30,4 +31,5 @@ ALL_BLUEPRINTS = [
     operating_hours_bp,
     messaging_bp,
     v2v_bp,
+    experience_bp,
 ]

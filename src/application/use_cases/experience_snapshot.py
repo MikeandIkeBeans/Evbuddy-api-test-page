@@ -14,17 +14,39 @@ from config import (
 from src.config import AppSettings
 
 SERVICE_LANES = {
+    # Core
     "users": "Identity",
     "user_vehicles": "Driver Graph",
     "user_payments": "Wallet",
+    "user_subscriptions": "Subscriptions",
+
+    # Host Ops
     "host_sites": "Host Ops",
-    "businesses": "Network Growth",
+    "access_invites": "Host Ops",
     "operating_hours": "Availability",
-    "feedback_reviews": "Trust",
+    "hostroom": "Host Ops",
+
+    # Charging
     "chargers": "Realtime Energy",
-    "preorders": "Demand Intake",
+    "chargebox": "Realtime Energy",
+    "ev_chargers": "Realtime Energy",
+    "service_pricing": "Pricing",
     "services_catalog": "Catalog",
+    "provider_services": "Catalog",
+    "ocpp": "Realtime Energy",
+    "transactions": "Transactions",
+    "pricing": "Pricing",
+    "booking": "Booking",
+
+    # Messaging & Dispatch
     "messaging": "Communications",
+    "dispatch": "Dispatch",
+
+    # Community
+    "service_reviews": "Trust",
+    "community_comments": "Community",
+    "community_posts": "Community",
+    "news_posts": "Community",
 }
 
 MISSION_TIMELINE = [

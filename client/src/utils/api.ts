@@ -7,7 +7,8 @@ export const EVBUDDY_API = (() => {
   if (typeof window === "undefined") {
     return API_BASE;
   }
-  if (window.location.port === "5173") {
+  // In dev, Vite may run on any port (5173, 5174, etc.) — always point to Flask
+  if (window.location.port !== "5000" && window.location.port !== "") {
     return API_BASE;
   }
   return window.location.origin;

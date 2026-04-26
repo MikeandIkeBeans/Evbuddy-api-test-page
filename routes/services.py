@@ -55,7 +55,7 @@ def get_services_status():
 
     available_count = sum(1 for s in services_status.values() if s.get("available"))
 
-    return jsonify({
+    payload_data = {
         "services": services_status,
         "summary": {
             "total": len(EVBUDDY_DEV_SERVICES),
@@ -64,6 +64,12 @@ def get_services_status():
         },
         "evbuddy_dev_host": EVBUDDY_DEV_HOST,
         "microservice_host": EVBUDDY_DEV_HOST,
+    }
+
+    return jsonify({
+        "ok": True,
+        "data": payload_data,
+        **payload_data,
     })
 
 

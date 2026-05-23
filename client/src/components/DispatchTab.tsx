@@ -58,17 +58,364 @@ function formatDate(iso?: string): string {
   }
 }
 
-function isServiceRequestArray(data: unknown): data is ServiceRequest[] {
-  return Array.isArray(data) && data.length > 0 && typeof data[0] === "object" && data[0] !== null && "id" in data[0];
-}
+type Asset = {
+  id: number;
+  status?: string | null;
+  asset_code?: string | null;
+  provider_id?: number | null;
+  asset_type?: string | null;
+  asset_name?: string | null;
+  assigned_responder_id?: number | null;
+  battery_level_percent?: number | null;
+  energy_available_kwh?: number | null;
+  health_status?: string | null;
+  supported_services?: string[] | null;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: unknown;
+};
 
-function isServiceRequestObject(data: unknown): data is ServiceRequest {
-  return typeof data === "object" && data !== null && !Array.isArray(data) && "id" in data;
-}
+type ResponderSession = {
+  id: number;
+  notes?: string | null;
+  session_id?: string | null;
+  responder_id?: number | null;
+  responder_user_id?: number | null;
+  provider_id?: number | null;
+  session_status?: string | null;
+  started_at?: string | null;
+  ended_at?: string | null;
+  assigned_asset_id?: number | null;
+  assigned_asset_code?: string | null;
+  jobs_completed_count?: number | null;
+  jobs_canceled_count?: number | null;
+  gross_earnings_cents?: number | null;
+  net_earnings_cents?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: unknown;
+};
 
 /* ------------------------------------------------------------------ */
-/*  Card components                                                    */
+/*  Card & Detail components                                           */
 /* ------------------------------------------------------------------ */
+
+function AssetCard({ asset }: { asset: Asset }) {
+  const status = asset.status ?? "unknown";
+  const statusTone = status === "available" ? "success" : status === "in_use" ? "warning" : "neutral";
+
+  return (
+    <div
+      className="feature-card"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        padding: 16,
+        transition: "border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
+        cursor: "default",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "var(--line-strong)";
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = "0 12px 32px rgba(0, 25, 20, 0.5)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "";
+        e.currentTarget.style.transform = "";
+        e.currentTarget.style.boxShadow = "";
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span className="feature-mono" style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.06em" }}>
+          #{asset.id}
+        </span>
+        <StatusPill tone={statusTone} label={status} />
+      </div>
+
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2 }}>
+          {asset.asset_name || asset.asset_code || `Asset #${asset.id}`}
+        </div>
+        {asset.asset_type && (
+          <span className="feature-mono" style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase" }}>
+            {asset.asset_type.replace(/_/g, " ")}
+          </span>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 12 }}>
+        {asset.provider_id != null && (
+          <span style={{ color: "var(--text-secondary)" }}>
+            <span style={{ color: "var(--text-muted)" }}>Provider:</span> <strong>#{asset.provider_id}</strong>
+          </span>
+        )}
+        {asset.assigned_responder_id != null && (
+          <span style={{ color: "var(--text-secondary)" }}>
+            <span style={{ color: "var(--text-muted)" }}>Assigned:</span> <strong>Responder #{asset.assigned_responder_id}</strong>
+          </span>
+        )}
+      </div>
+
+      {(asset.battery_level_percent != null || asset.health_status || asset.energy_available_kwh != null) && (
+        <div style={{ display: "flex", gap: 12, fontSize: 11, background: "rgba(255, 255, 255, 0.02)", padding: "4px 8px", borderRadius: 6 }}>
+          {asset.battery_level_percent != null && <span>🔋 {asset.battery_level_percent}%</span>}
+          {asset.energy_available_kwh != null && <span>⚡ {asset.energy_available_kwh} kWh</span>}
+          {asset.health_status && <span>❤️ Health: {asset.health_status}</span>}
+        </div>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)", borderTop: "1px solid var(--line-soft)", paddingTop: 8, marginTop: 2 }}>
+        <span>Registered {formatDate(asset.createdAt)}</span>
+      </div>
+    </div>
+  );
+}
+
+function AssetDetail({ asset }: { asset: Asset }) {
+  const status = asset.status ?? "unknown";
+  const statusTone = status === "available" ? "success" : status === "in_use" ? "warning" : "neutral";
+
+  const knownKeys = new Set([
+    "id", "status", "asset_code", "provider_id", "asset_type", "asset_name",
+    "assigned_responder_id", "battery_level_percent", "energy_available_kwh",
+    "health_status", "supported_services", "createdAt", "updatedAt"
+  ]);
+  const extraFields = Object.entries(asset).filter(([k]) => !knownKeys.has(k) && asset[k] != null);
+
+  return (
+    <div className="feature-card" style={{ padding: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+            {asset.asset_name || asset.asset_code || `Asset #${asset.id}`}
+          </div>
+          <span className="feature-mono" style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            ID: {asset.id} {asset.asset_type ? `· ${asset.asset_type.replace(/_/g, " ")}` : ""}
+          </span>
+        </div>
+        <StatusPill tone={statusTone} label={status} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 14 }}>
+        {asset.provider_id != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Provider ID</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>#{asset.provider_id}</p>
+          </div>
+        )}
+        {asset.assigned_responder_id != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Assigned Responder</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>#{asset.assigned_responder_id}</p>
+          </div>
+        )}
+        {asset.battery_level_percent != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Battery Level</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>{asset.battery_level_percent}%</p>
+          </div>
+        )}
+        {asset.energy_available_kwh != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Energy Available</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>{asset.energy_available_kwh} kWh</p>
+          </div>
+        )}
+      </div>
+
+      {extraFields.length > 0 && (
+        <div className="feature-table-wrap" style={{ marginBottom: 14 }}>
+          <table className="feature-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {extraFields.map(([k, v]) => (
+                <tr key={k}>
+                  <td className="feature-mono" style={{ fontSize: 12 }}>{k}</td>
+                  <td style={{ fontSize: 12 }}>{typeof v === "object" ? JSON.stringify(v) : String(v)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 24, fontSize: 12, color: "var(--text-muted)" }}>
+        <span>Registered: <strong>{formatDate(asset.createdAt)}</strong></span>
+        <span>Updated: <strong>{formatDate(asset.updatedAt)}</strong></span>
+      </div>
+    </div>
+  );
+}
+
+function ResponderSessionCard({ session }: { session: ResponderSession }) {
+  const status = session.session_status ?? "unknown";
+  const statusTone = status === "active" ? "success" : status === "completed" ? "info" : "neutral";
+
+  return (
+    <div
+      className="feature-card"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        padding: 16,
+        transition: "border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
+        cursor: "default",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "var(--line-strong)";
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = "0 12px 32px rgba(0, 25, 20, 0.5)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "";
+        e.currentTarget.style.transform = "";
+        e.currentTarget.style.boxShadow = "";
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span className="feature-mono" style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.06em" }}>
+          #{session.id}
+        </span>
+        <StatusPill tone={statusTone} label={status} />
+      </div>
+
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2 }}>
+          {session.session_id ? `Session ${session.session_id.substring(0, 8)}...` : `Session #${session.id}`}
+        </div>
+        {session.responder_id != null && (
+          <span className="feature-mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+            RESPONDER ID: {session.responder_id}
+          </span>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 12 }}>
+        {session.assigned_asset_code && (
+          <span style={{ color: "var(--text-secondary)" }}>
+            <span style={{ color: "var(--text-muted)" }}>Asset:</span> <strong>{session.assigned_asset_code}</strong>
+          </span>
+        )}
+        {session.jobs_completed_count != null && (
+          <span style={{ color: "var(--text-secondary)" }}>
+            <span style={{ color: "var(--text-muted)" }}>Jobs Done:</span> <strong>{session.jobs_completed_count}</strong>
+          </span>
+        )}
+        {session.gross_earnings_cents != null && (
+          <span style={{ color: "var(--text-secondary)" }}>
+            <span style={{ color: "var(--text-muted)" }}>Earnings:</span> <strong>{(session.gross_earnings_cents / 100).toFixed(2)} USD</strong>
+          </span>
+        )}
+      </div>
+
+      {session.notes && (
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", padding: "6px 8px", borderRadius: 6, background: "rgba(0, 47, 39, 0.4)", border: "1px solid rgba(255,255,255,0.06)" }}>
+          {session.notes}
+        </div>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)", borderTop: "1px solid var(--line-soft)", paddingTop: 8, marginTop: 2 }}>
+        <span>Started {formatDate(session.started_at || session.createdAt)}</span>
+      </div>
+    </div>
+  );
+}
+
+function ResponderSessionDetail({ session }: { session: ResponderSession }) {
+  const status = session.session_status ?? "unknown";
+  const statusTone = status === "active" ? "success" : status === "completed" ? "info" : "neutral";
+
+  const knownKeys = new Set([
+    "id", "notes", "session_id", "responder_id", "responder_user_id", "provider_id",
+    "session_status", "started_at", "ended_at", "assigned_asset_id", "assigned_asset_code",
+    "jobs_completed_count", "jobs_canceled_count", "gross_earnings_cents", "net_earnings_cents",
+    "createdAt", "updatedAt"
+  ]);
+  const extraFields = Object.entries(session).filter(([k]) => !knownKeys.has(k) && session[k] != null);
+
+  return (
+    <div className="feature-card" style={{ padding: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+            {session.session_id ? `Session ${session.session_id}` : `Session #${session.id}`}
+          </div>
+          <span className="feature-mono" style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            ID: {session.id} {session.responder_id ? `· Responder: ${session.responder_id}` : ""}
+          </span>
+        </div>
+        <StatusPill tone={statusTone} label={status} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 14 }}>
+        {session.provider_id != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Provider ID</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>#{session.provider_id}</p>
+          </div>
+        )}
+        {session.assigned_asset_code && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Assigned Asset</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>{session.assigned_asset_code}</p>
+          </div>
+        )}
+        {session.jobs_completed_count != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Jobs Completed</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>{session.jobs_completed_count}</p>
+          </div>
+        )}
+        {session.gross_earnings_cents != null && (
+          <div className="feature-kpi" style={{ padding: 12 }}>
+            <p className="feature-kpi-label">Gross Earnings</p>
+            <p className="feature-kpi-value" style={{ fontSize: 16 }}>${(session.gross_earnings_cents / 100).toFixed(2)}</p>
+          </div>
+        )}
+      </div>
+
+      {session.notes && (
+        <div style={{ fontSize: 13, color: "var(--text-secondary)", padding: "10px 14px", borderRadius: 10, background: "rgba(0, 47, 39, 0.4)", border: "1px solid rgba(255,255,255,0.06)", lineHeight: 1.6, marginBottom: 14 }}>
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, display: "block", marginBottom: 4 }}>NOTES</span>
+          {session.notes}
+        </div>
+      )}
+
+      {extraFields.length > 0 && (
+        <div className="feature-table-wrap" style={{ marginBottom: 14 }}>
+          <table className="feature-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {extraFields.map(([k, v]) => (
+                <tr key={k}>
+                  <td className="feature-mono" style={{ fontSize: 12 }}>{k}</td>
+                  <td style={{ fontSize: 12 }}>{typeof v === "object" ? JSON.stringify(v) : String(v)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 24, fontSize: 12, color: "var(--text-muted)" }}>
+        <span>Started: <strong>{formatDate(session.started_at || session.createdAt)}</strong></span>
+        <span>Ended: <strong>{formatDate(session.ended_at || session.updatedAt)}</strong></span>
+      </div>
+    </div>
+  );
+}
 
 function ServiceRequestCard({ sr }: { sr: ServiceRequest }) {
   const statusTone = STATUS_TONES[sr.status ?? ""] ?? "neutral";
@@ -295,13 +642,30 @@ function ServiceRequestDetail({ sr }: { sr: ServiceRequest }) {
 /*  Response display                                                   */
 /* ------------------------------------------------------------------ */
 
-function SmartResponseDisplay({ response }: { response: ApiResponse }) {
+function SmartResponseDisplay({ response, requestPath }: { response: ApiResponse; requestPath: string }) {
   const [showRaw, setShowRaw] = useState(false);
   const data = response.data;
 
-  const isArray = isServiceRequestArray(data);
-  const isSingle = isServiceRequestObject(data);
-  const hasSmartView = isArray || isSingle;
+  const isArray = Array.isArray(data);
+  const isSingle = typeof data === "object" && data !== null && !isArray;
+
+  const isAsset =
+    requestPath.includes("assets") ||
+    (isArray && data.length > 0 && ("asset_code" in data[0] || "asset_type" in data[0])) ||
+    (isSingle && ("asset_code" in data || "asset_type" in data));
+
+  const isSession =
+    requestPath.includes("respondersessions") ||
+    (isArray && data.length > 0 && ("session_status" in data[0] || "responder_id" in data[0])) ||
+    (isSingle && ("session_status" in data || "responder_id" in data));
+
+  const isServiceReq =
+    requestPath.includes("service-requests") ||
+    requestPath.includes("servicerequests") ||
+    (isArray && data.length > 0 && ("service_code" in data[0] || "priority_code" in data[0])) ||
+    (isSingle && ("service_code" in data || "priority_code" in data));
+
+  const hasSmartView = isAsset || isSession || isServiceReq;
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -323,10 +687,10 @@ function SmartResponseDisplay({ response }: { response: ApiResponse }) {
         </div>
       </div>
 
-      {isArray && !showRaw && (
+      {isArray && !showRaw && isAsset && (
         <div style={{ marginTop: 12 }}>
           <p className="feature-muted" style={{ marginBottom: 10, fontSize: 12 }}>
-            {(data as ServiceRequest[]).length} service request{(data as ServiceRequest[]).length !== 1 ? "s" : ""}
+            {data.length} mobile asset{data.length !== 1 ? "s" : ""}
           </p>
           <div
             style={{
@@ -338,14 +702,70 @@ function SmartResponseDisplay({ response }: { response: ApiResponse }) {
               paddingRight: 4,
             }}
           >
-            {(data as ServiceRequest[]).map((sr, i) => (
+            {data.map((asset: any, i: number) => (
+              <AssetCard key={asset.id ?? i} asset={asset} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isSingle && !showRaw && isAsset && (
+        <div style={{ marginTop: 12 }}>
+          <AssetDetail asset={data as Asset} />
+        </div>
+      )}
+
+      {isArray && !showRaw && isSession && (
+        <div style={{ marginTop: 12 }}>
+          <p className="feature-muted" style={{ marginBottom: 10, fontSize: 12 }}>
+            {data.length} responder session{data.length !== 1 ? "s" : ""}
+          </p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: 14,
+              maxHeight: 640,
+              overflowY: "auto",
+              paddingRight: 4,
+            }}
+          >
+            {data.map((session: any, i: number) => (
+              <ResponderSessionCard key={session.id ?? i} session={session} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isSingle && !showRaw && isSession && (
+        <div style={{ marginTop: 12 }}>
+          <ResponderSessionDetail session={data as ResponderSession} />
+        </div>
+      )}
+
+      {isArray && !showRaw && isServiceReq && (
+        <div style={{ marginTop: 12 }}>
+          <p className="feature-muted" style={{ marginBottom: 10, fontSize: 12 }}>
+            {data.length} service request{data.length !== 1 ? "s" : ""}
+          </p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: 14,
+              maxHeight: 640,
+              overflowY: "auto",
+              paddingRight: 4,
+            }}
+          >
+            {data.map((sr: any, i: number) => (
               <ServiceRequestCard key={sr.id ?? i} sr={sr} />
             ))}
           </div>
         </div>
       )}
 
-      {isSingle && !showRaw && (
+      {isSingle && !showRaw && isServiceReq && (
         <div style={{ marginTop: 12 }}>
           <ServiceRequestDetail sr={data as ServiceRequest} />
         </div>
@@ -528,7 +948,7 @@ export default function DispatchTab() {
           </form>
         </div>
 
-        {response && <SmartResponseDisplay response={response} />}
+        {response && <SmartResponseDisplay response={response} requestPath={path} />}
       </Panel>
 
       <Panel>

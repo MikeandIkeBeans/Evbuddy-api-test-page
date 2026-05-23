@@ -5,10 +5,10 @@ Service discovery and health check routes (/api/services/..., /health).
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests as http_requests
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
-from config import EVBUDDY_DEV_SERVICES, EVBUDDY_DEV_HOST, normalize_service_key
-from helpers import ms_url, service_status_url
+from config import EVBUDDY_DEV_SERVICES, EVBUDDY_DEV_HOST, normalize_service_key, get_host_for_port
+from helpers import ms_url, service_status_url, proxy_json_request
 from src.api.response import error_response, success_response
 
 services_bp = Blueprint("services", __name__)
@@ -110,3 +110,48 @@ def platform_single_service_status(service_name):
         )
 
     return success_response(_probe_service(canonical_service_name, timeout=5))
+
+
+# =============================================================================
+# Port 9026 Upstream Proxies (Services Catalog, Pricing, Provider Services)
+# =============================================================================
+SERVICES_BASE = f"{get_host_for_port(9026)}:9026"
+
+@services_bp.route("/api/v1/services", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+@services_bp.route("/api/v1/services/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+def proxy_services_catalog(subpath=""):
+    url = f"{SERVICES_BASE}/services"
+    if subpath:
+        url = f"{url}/{subpath}"
+    if request.query_string:
+        url = f"{url}?{request.query_string.decode('utf-8')}"
+    if request.method in ["POST", "PUT", "PATCH"]:
+        body = request.get_json(silent=True) or {}
+        return proxy_json_request(request.method, url, body=body, error_message="Services catalog proxy error")
+    return proxy_json_request(request.method, url, error_message="Services catalog proxy error")
+
+@services_bp.route("/api/v1/service-pricing", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+@services_bp.route("/api/v1/service-pricing/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+def proxy_service_pricing(subpath=""):
+    url = f"{SERVICES_BASE}/service-pricing"
+    if subpath:
+        url = f"{url}/{subpath}"
+    if request.query_string:
+        url = f"{url}?{request.query_string.decode('utf-8')}"
+    if request.method in ["POST", "PUT", "PATCH"]:
+        body = request.get_json(silent=True) or {}
+        return proxy_json_request(request.method, url, body=body, error_message="Service pricing proxy error")
+    return proxy_json_request(request.method, url, error_message="Service pricing proxy error")
+
+@services_bp.route("/api/v1/provider-services", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+@services_bp.route("/api/v1/provider-services/<path:subpath>", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+def proxy_provider_services(subpath=""):
+    url = f"{SERVICES_BASE}/provider-services"
+    if subpath:
+        url = f"{url}/{subpath}"
+    if request.query_string:
+        url = f"{url}?{request.query_string.decode('utf-8')}"
+    if request.method in ["POST", "PUT", "PATCH"]:
+        body = request.get_json(silent=True) or {}
+        return proxy_json_request(request.method, url, body=body, error_message="Provider services proxy error")
+    return proxy_json_request(request.method, url, error_message="Provider services proxy error")

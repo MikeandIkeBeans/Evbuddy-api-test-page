@@ -1,9 +1,9 @@
 {
   "test": "cpms_remote_start_flood",
-  "requests_total": 600,
-  "workers": 24,
-  "success_count": 600,
+  "requests_total": 100,
+  "workers": 10,
+  "success_count": 100,
   "failure_count": 0,
-  "elapsed_sec": 4.394,
-  "commands_count": 500
+  "elapsed_sec": 0.768,
+  "commands_count": 100
 }

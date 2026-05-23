@@ -1,0 +1,13 @@
+{
+  "test": "real_backend_stress_burst",
+  "requests_total": 50,
+  "workers": 10,
+  "success_count": 45,
+  "failure_count": 5,
+  "elapsed_sec": 15.897581600000194,
+  "rps": 3.145132464676224,
+  "latency_p50": 0.11162380000132544,
+  "latency_p90": 15.008299299999635,
+  "latency_p95": 15.029366400000072,
+  "new_db_rows": 4
+}

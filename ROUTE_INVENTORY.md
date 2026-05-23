@@ -1,13 +1,11 @@
 # Route Inventory
 
-Total routes: 153
+Total routes: 108
 
 | Method | Path | Handler | File |
 |---|---|---|---|
 | GET | / | index | routes/pages.py |
 | GET | /<path:path> | static_proxy | routes/pages.py |
-| GET | /api/accessgrants/charger_access/grants | get_all_grants | routes/invites.py |
-| GET | /api/accessgrants/charger_access/grantsbyuser/<int:user_id> | get_grants_by_user | routes/invites.py |
 | POST | /api/assets/<asset_id>/change-configuration | cpms_change_configuration | routes/cpms.py |
 | GET | /api/assets/<asset_id>/commands | cpms_list_asset_commands | routes/cpms.py |
 | GET | /api/assets/<asset_id>/diagnostics | cpms_get_diagnostics | routes/cpms.py |
@@ -17,35 +15,9 @@ Total routes: 153
 | POST | /api/assets/<asset_id>/remote-stop | cpms_remote_stop | routes/cpms.py |
 | POST | /api/assets/<asset_id>/reset | cpms_reset | routes/cpms.py |
 | PUT | /api/assets/<asset_id>/tariff | cpms_update_tariff | routes/cpms.py |
-| GET | /api/audit-log | get_audit_log | routes/drivers.py |
-| GET | /api/auth/can-manage-site/<int:site_id> | check_can_manage_site | routes/drivers.py |
-| GET | /api/auth/can-use-site/<int:site_id> | check_can_use_site | routes/drivers.py |
-| GET | /api/businesses | get_all_businesses | routes/businesses.py |
-| POST | /api/businesses | create_business | routes/businesses.py |
-| DELETE | /api/businesses/<int:business_id> | delete_business | routes/businesses.py |
-| GET | /api/businesses/<int:business_id> | get_business | routes/businesses.py |
-| PUT | /api/businesses/<int:business_id> | update_business | routes/businesses.py |
-| GET | /api/businesses/<int:business_id>/employees | get_business_employees | routes/employees.py |
-| POST | /api/businesses/<int:business_id>/employees | create_employee | routes/employees.py |
 | GET | /api/businesses/<int:business_id>/sites | get_business_sites | routes/sites.py |
 | POST | /api/businesses/<int:business_id>/sites | create_site | routes/sites.py |
 | GET | /api/data | api_data | routes/sites.py |
-| DELETE | /api/employees/<int:employee_id> | delete_employee | routes/employees.py |
-| GET | /api/employees/<int:employee_id> | get_employee | routes/employees.py |
-| PUT | /api/employees/<int:employee_id> | update_employee | routes/employees.py |
-| GET | /api/employees/<int:employee_id>/permissions | get_employee_permissions | routes/employees.py |
-| POST | /api/employees/<int:employee_id>/permissions | grant_employee_permission | routes/employees.py |
-| DELETE | /api/employees/<int:employee_id>/permissions/<int:permission_id> | revoke_employee_permission | routes/employees.py |
-| GET | /api/employees/<int:employee_id>/sites | get_employee_sites | routes/employees.py |
-| POST | /api/employees/<int:employee_id>/sites | assign_employee_to_site | routes/employees.py |
-| DELETE | /api/employees/<int:employee_id>/sites/<int:site_id> | remove_employee_from_site | routes/employees.py |
-| PUT | /api/employees/<int:employee_id>/sites/<int:site_id> | update_employee_site | routes/employees.py |
-| GET | /api/invitations/<token> | get_invitation | routes/drivers.py |
-| POST | /api/invitations/<token>/accept | accept_invitation | routes/drivers.py |
-| GET | /api/invites | get_all_invites | routes/invites.py |
-| GET | /api/invites/invited-by/<int:user_id> | get_invites_by_user | routes/invites.py |
-| GET | /api/me/site-access | get_my_site_access | routes/drivers.py |
-| GET | /api/me/site-access/all | get_my_all_site_access | routes/drivers.py |
 | GET | /api/messaging/templates | list_templates | routes/messaging.py |
 | POST | /api/messaging/templates | create_template | routes/messaging.py |
 | DELETE | /api/messaging/templates/<int:template_id> | delete_template | routes/messaging.py |
@@ -74,14 +46,6 @@ Total routes: 153
 | GET | /api/messaging/threads/<int:thread_id>/status-events | list_status_events | routes/messaging.py |
 | POST | /api/messaging/threads/<int:thread_id>/status-events | create_status_event | routes/messaging.py |
 | GET | /api/messaging/threads/<int:thread_id>/status-events/<int:event_id> | get_status_event | routes/messaging.py |
-| GET | /api/operating-hours | get_operating_hours | routes/operating_hours.py |
-| PUT | /api/operating-hours | put_operating_hours | routes/operating_hours.py |
-| GET | /api/operating-hours-exceptions | get_operating_hours_exceptions | routes/operating_hours.py |
-| POST | /api/operating-hours-exceptions | create_operating_hours_exception | routes/operating_hours.py |
-| GET | /api/payments | get_all_payments | routes/payments.py |
-| POST | /api/payments | create_payment | routes/payments.py |
-| DELETE | /api/payments/<int:payment_id> | delete_payment | routes/payments.py |
-| GET | /api/payments/<int:payment_id> | get_payment_by_id | routes/payments.py |
 | GET | /api/platform/health | platform_health | routes/services.py |
 | GET | /api/platform/services/<service_name> | platform_single_service_status | routes/services.py |
 | POST | /api/preorder | api_preorder | routes/sites.py |
@@ -92,15 +56,6 @@ Total routes: 153
 | DELETE | /api/sites/<int:site_id> | delete_site | routes/sites.py |
 | GET | /api/sites/<int:site_id> | get_site | routes/sites.py |
 | PUT | /api/sites/<int:site_id> | update_site | routes/sites.py |
-| POST | /api/sites/<int:site_id>/access-request | request_site_access | routes/drivers.py |
-| GET | /api/sites/<int:site_id>/drivers | get_site_drivers | routes/drivers.py |
-| POST | /api/sites/<int:site_id>/drivers/<int:driver_id>/approve | approve_driver | routes/drivers.py |
-| POST | /api/sites/<int:site_id>/drivers/<int:driver_id>/block | block_driver | routes/drivers.py |
-| POST | /api/sites/<int:site_id>/drivers/<int:driver_id>/revoke | revoke_driver | routes/drivers.py |
-| POST | /api/sites/<int:site_id>/drivers/<int:driver_id>/unblock | unblock_driver | routes/drivers.py |
-| POST | /api/sites/<int:site_id>/drivers/invite | invite_driver | routes/drivers.py |
-| GET | /api/sites/<int:site_id>/employees | get_site_employees | routes/employees.py |
-| POST | /api/sites/<int:site_id>/employees | assign_existing_employee_to_site | routes/employees.py |
 | GET | /api/sites/<int:site_id>/members | get_site_members | routes/sites.py |
 | DELETE | /api/sites/<int:site_id>/members/<int:user_id> | remove_site_member | routes/sites.py |
 | POST | /api/sites/<int:site_id>/members/<int:user_id> | add_site_member | routes/sites.py |
@@ -113,7 +68,6 @@ Total routes: 153
 | GET | /api/users/<int:user_id> | get_user_by_id | routes/users.py |
 | PATCH | /api/users/<int:user_id> | patch_user | routes/users.py |
 | PUT | /api/users/<int:user_id> | update_user | routes/users.py |
-| GET | /api/users/<int:user_id>/payments | get_user_payments | routes/payments.py |
 | GET | /api/users/<int:user_id>/vehicles | get_user_vehicles | routes/vehicles.py |
 | GET | /api/users/status | users_service_status | routes/users.py |
 | GET | /api/vehicles | get_all_vehicles | routes/vehicles.py |

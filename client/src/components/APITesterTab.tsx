@@ -33,9 +33,11 @@ export default function APITesterTab() {
   const quickEndpoints = [
     { method: "GET", endpoint: "/health", label: "Health" },
     { method: "GET", endpoint: "/api/services", label: "Services" },
-    { method: "GET", endpoint: "/api/sites/1/members", label: "Site 1 Members" },
-    { method: "GET", endpoint: "/api/sites/1/drivers?actor_user_id=1", label: "Site 1 Drivers" },
-    { method: "GET", endpoint: "/api/audit-log?limit=10", label: "Audit Log" },
+    { method: "GET", endpoint: "/api/users", label: "Users" },
+    { method: "GET", endpoint: "/api/messaging/threads", label: "Messaging Threads" },
+    { method: "GET", endpoint: "/v1/chargers", label: "Chargers" },
+    { method: "GET", endpoint: "/api/v1/assets", label: "Dispatch Assets" },
+    { method: "GET", endpoint: "/api/v1/service-requests", label: "Dispatch Service Requests" },
   ];
 
   return (

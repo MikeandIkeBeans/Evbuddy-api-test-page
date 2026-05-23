@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import styles from "./styles";
 import {
   Activity,
@@ -8,6 +8,7 @@ import {
   FlaskConical,
   Inbox,
   MessagesSquare,
+  Radio,
   Wrench,
   Zap,
 } from "lucide-react";
@@ -21,7 +22,9 @@ import OperatingHoursTab from "./components/OperatingHoursTab";
 import MessagingTab from "./components/MessagingTab";
 import DriverInboxTab from "./components/DriverInboxTab";
 import V2VTab from "./components/V2VTab";
+import DispatchTab from "./components/DispatchTab";
 import { ScreenContainer, TabButton } from "./components/primitives";
+import StarfieldCanvas from "./components/StarfieldCanvas";
 
 const TAB_NAV_EVENT = "evbuddy:navigate-tab";
 const TAB_HASH_PREFIX = "#tab=";
@@ -48,6 +51,13 @@ const TABS = [
     group: "operations",
     icon: Activity,
     component: ActiveSessionsTab,
+  },
+  {
+    id: "dispatch",
+    label: "Dispatch",
+    group: "operations",
+    icon: Radio,
+    component: DispatchTab,
   },
   {
     id: "hostsites",
@@ -102,6 +112,13 @@ const readHashTabId = () => {
   return decodeURIComponent(window.location.hash.slice(TAB_HASH_PREFIX.length));
 };
 
+const scrollToSection = (tabId: string) => {
+  const section = document.getElementById(`section-${tabId}`);
+  if (section) {
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
     const hashTabId = readHashTabId();
@@ -109,6 +126,10 @@ export default function App() {
   });
   const [indicator, setIndicator] = useState({ left: 0, width: 0, visible: false });
   const tabsRef = useRef<HTMLElement | null>(null);
+  // Ref to suppress observer-driven updates during programmatic scroll
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const tabsByGroup = useMemo(
     () =>
       TAB_GROUPS.map((group) => ({
@@ -118,32 +139,87 @@ export default function App() {
     [],
   );
 
+  // Scroll to section on tab click (suppress observer for a moment)
+  const handleTabClick = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+    isScrollingRef.current = true;
+    scrollToSection(tabId);
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 800);
+  }, []);
+
+  // IntersectionObserver to track which section is in view
+  useEffect(() => {
+    const sectionEls = TABS.map((tab) => document.getElementById(`section-${tab.id}`)).filter(
+      Boolean,
+    ) as HTMLElement[];
+
+    if (sectionEls.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingRef.current) return;
+
+        // Find the most-visible section
+        let bestEntry: IntersectionObserverEntry | null = null;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+            bestEntry = entry;
+          }
+        }
+
+        if (bestEntry) {
+          const sectionId = bestEntry.target.id.replace("section-", "");
+          if (TAB_IDS.has(sectionId)) {
+            setActiveTab(sectionId);
+          }
+        }
+      },
+      {
+        rootMargin: "-140px 0px -40% 0px",
+        threshold: [0, 0.1, 0.25, 0.5],
+      },
+    );
+
+    for (const el of sectionEls) {
+      observer.observe(el);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Handle the custom tab navigation event (from child components)
   useEffect(() => {
     const handleTabNavigation = (event: Event) => {
       const tabId = (event as CustomEvent<{ tabId?: string }>).detail?.tabId;
       if (!tabId || !TAB_IDS.has(tabId)) return;
-      setActiveTab(tabId);
+      handleTabClick(tabId);
     };
 
     window.addEventListener(TAB_NAV_EVENT, handleTabNavigation);
     return () => {
       window.removeEventListener(TAB_NAV_EVENT, handleTabNavigation);
     };
-  }, []);
+  }, [handleTabClick]);
 
+  // Hash → scroll on hashchange
   useEffect(() => {
     const handleHashChange = () => {
       const hashTabId = readHashTabId();
       if (!TAB_IDS.has(hashTabId)) return;
-      setActiveTab(hashTabId);
+      handleTabClick(hashTabId);
     };
 
     window.addEventListener("hashchange", handleHashChange);
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, []);
+  }, [handleTabClick]);
 
+  // Sync activeTab → URL hash
   useEffect(() => {
     if (typeof window === "undefined") return;
     const nextHash = `${TAB_HASH_PREFIX}${encodeURIComponent(activeTab)}`;
@@ -156,6 +232,18 @@ export default function App() {
     );
   }, [activeTab]);
 
+  // On mount, scroll to hash section if present
+  useEffect(() => {
+    const hashTabId = readHashTabId();
+    if (TAB_IDS.has(hashTabId) && hashTabId !== DEFAULT_TAB_ID) {
+      // Slight delay to let sections render first
+      requestAnimationFrame(() => {
+        scrollToSection(hashTabId);
+      });
+    }
+  }, []);
+
+  // Tab indicator logic (unchanged)
   const updateIndicator = () => {
     const tabsElement = tabsRef.current;
     const activeElement = document.getElementById(`tab-${activeTab}`);
@@ -203,6 +291,7 @@ export default function App() {
     };
   }, [activeTab]);
 
+  // Keyboard navigation
   const focusTab = (tabId: string) => {
     const tabElement = document.getElementById(`tab-${tabId}`);
     if (tabElement instanceof HTMLButtonElement) {
@@ -214,7 +303,7 @@ export default function App() {
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
       const nextTabId = TABS[(index + 1) % TABS.length].id;
-      setActiveTab(nextTabId);
+      handleTabClick(nextTabId);
       focusTab(nextTabId);
       return;
     }
@@ -222,7 +311,7 @@ export default function App() {
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
       const nextTabId = TABS[(index - 1 + TABS.length) % TABS.length].id;
-      setActiveTab(nextTabId);
+      handleTabClick(nextTabId);
       focusTab(nextTabId);
       return;
     }
@@ -230,7 +319,7 @@ export default function App() {
     if (event.key === "Home") {
       event.preventDefault();
       const nextTabId = TABS[0].id;
-      setActiveTab(nextTabId);
+      handleTabClick(nextTabId);
       focusTab(nextTabId);
       return;
     }
@@ -238,17 +327,15 @@ export default function App() {
     if (event.key === "End") {
       event.preventDefault();
       const nextTabId = TABS[TABS.length - 1].id;
-      setActiveTab(nextTabId);
+      handleTabClick(nextTabId);
       focusTab(nextTabId);
     }
   };
 
-  const activeTabConfig = TABS.find((tab) => tab.id === activeTab) ?? TABS[0];
-  const activeTabIndex = TABS.findIndex((tab) => tab.id === activeTab);
-  const ActiveTabComponent = activeTabConfig.component;
-
   return (
-    <div style={styles.container} className="dashboard-shell dashboard-shell-refined">
+    <>
+      <StarfieldCanvas />
+      <div style={styles.container} className="dashboard-shell dashboard-shell-refined">
       <div style={styles.header} className="dashboard-header">
         <div style={styles.headerCopy}>
           <div style={styles.logo}>EV Buddy</div>
@@ -283,11 +370,10 @@ export default function App() {
                       className={`dashboard-tab${activeTab === tab.id ? " is-active" : ""}`}
                       active={activeTab === tab.id}
                       style={styles.tab}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => handleTabClick(tab.id)}
                       onKeyDown={(event) => handleTabKeyDown(event, index)}
                       role="tab"
                       aria-selected={activeTab === tab.id}
-                      aria-controls={activeTab === tab.id ? `panel-${tab.id}` : undefined}
                       tabIndex={activeTab === tab.id ? 0 : -1}
                       data-active={activeTab === tab.id ? "true" : "false"}
                     >
@@ -315,24 +401,35 @@ export default function App() {
         </div>
       </nav>
 
-      <section
-        className="dashboard-tabpanel"
-        role="tabpanel"
-        id={`panel-${activeTabConfig.id}`}
-        aria-labelledby={`tab-${activeTabConfig.id}`}
-      >
-        <div className="dashboard-viewing-meta" aria-live="polite">
-          <span className="dashboard-viewing-label">Viewing</span>
-          <span className="dashboard-viewing-value">{activeTabConfig.label}</span>
-          <span className="dashboard-viewing-order">
-            {activeTabIndex + 1} / {TABS.length}
-          </span>
-        </div>
+      <div className="dashboard-sections-wrap">
+        {TABS.map((tab, index) => {
+          const TabComponent = tab.component;
+          const Icon = tab.icon;
 
-        <ScreenContainer>
-          <ActiveTabComponent />
-        </ScreenContainer>
-      </section>
-    </div>
+          return (
+            <section
+              key={tab.id}
+              id={`section-${tab.id}`}
+              className="dashboard-section"
+            >
+              <div className="dashboard-section-header">
+                <span className="dashboard-section-header-icon" aria-hidden>
+                  <Icon size={16} strokeWidth={2.2} />
+                </span>
+                <span className="dashboard-section-header-title">{tab.label}</span>
+                <span className="dashboard-section-header-order">
+                  {index + 1} / {TABS.length}
+                </span>
+              </div>
+
+              <ScreenContainer>
+                <TabComponent />
+              </ScreenContainer>
+            </section>
+          );
+        })}
+      </div>
+      </div>
+    </>
   );
 }

@@ -1,5 +1,11 @@
 # API Contract Normalization Report
 
+Status note (2026-04-17): this file contains a legacy inventory snapshot from before route consolidation.
+
+- Current route source of truth is `ROUTE_INVENTORY.md` (`Total routes: 108`).
+- Route families such as businesses, employees, drivers, invites, operating-hours, and payments still appear below as historical entries but are no longer present in the current route modules.
+- Only platform health endpoints are currently documented here as normalized.
+
 This report tracks contract-normalized routes that should return the canonical envelope:
 
 ```json
@@ -12,9 +18,9 @@ Error envelope:
 {"ok": false, "error": {"code": "...", "message": "..."}}
 ```
 
-## Legacy Route Inventory
+## Legacy Route Inventory (Historical Snapshot)
 
-Total discovered route handlers: 153
+Total discovered route handlers at snapshot time: 153
 
 | Method | Path | Normalized Ready |
 |---|---|---|

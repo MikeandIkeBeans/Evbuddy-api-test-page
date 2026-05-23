@@ -1,6 +1,6 @@
 {
   "test": "cpms_start_stop_cycles",
-  "cycles": 180,
+  "cycles": 20,
   "failures": [],
-  "elapsed_sec": 2.972
+  "elapsed_sec": 0.297
 }

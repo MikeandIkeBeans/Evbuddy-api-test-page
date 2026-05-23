@@ -45,13 +45,17 @@ If `client/dist/index.html` exists, Flask serves the built app from `/`.
 - `EVBUDDY_DEV_HOST` (default: `http://dev.evbuddy.net`)
 - `EVBUDDY_DEV_USERS_BASE` (default: `${EVBUDDY_DEV_HOST}:9000`)
 - `EVBUDDY_DEV_HOST_SITES_BASE` (default: `${EVBUDDY_DEV_HOST}:9004`)
-- `EVBUDDY_DEV_BUSINESS_BASE` (default: `${EVBUDDY_DEV_HOST}:9005`)
 - `EVBUDDY_DEV_CHARGERS_BASE` (default: `${EVBUDDY_DEV_HOST}:9017`)
 - `EVBUDDY_DEV_OCPP_BASE` (default: `${EVBUDDY_DEV_HOST}:9029`)
+- `EVBUDDY_DEV_HOST_ROOMS_BASE` (default: `${EVBUDDY_DEV_HOST}:9027`)
 - `EVBUDDY_DEV_MESSAGING_BASE` (default: `${EVBUDDY_DEV_HOST}:9011`)
 - Legacy compatibility: `MICROSERVICE_HOST` and `REAL_*_API_BASE` env names are still supported.
 - `JWT_SECRET` (default: `dev-secret-change-me`)
 - `DEMO_TIME_SCALE` (default: `30`, controls virtual session-time scaling)
+
+Environment templates:
+- Root/backend template: `.env.example` (copy to `.env` for local overrides).
+- Frontend template: `client/.env.example` (currently informational; no `import.meta.env` usage in `client/src`).
 
 ## Project Layout
 ```text
@@ -65,9 +69,23 @@ client/                React dashboard
 ```
 
 ## API Groups
-- `/api/*`: business, users, vehicles, payments, security, services
+- `/api/*`: users, vehicles, host sites, messaging, CPMS operations, and platform service health
+- `/api/v1/*`: dispatch/responder passthrough routes
 - `/v1/*`: EV charging flow and charger/session endpoints
 - `/health`: local health check
+
+## Documentation
+
+Extensive documentation is available in the `docs/` directory:
+
+| Document | Description |
+|----------|-------------|
+| [Architecture Guide](docs/ARCHITECTURE.md) | System overview, backend/frontend architecture, data flow, middleware pipeline, upstream topology, and deployment modes |
+| [API Reference](docs/API_REFERENCE.md) | Complete endpoint reference with request/response examples, query parameters, and error formats |
+| [Configuration Reference](docs/CONFIGURATION.md) | All environment variables, config precedence, legacy aliases, and guard rail settings |
+| [Development Guide](docs/DEVELOPMENT.md) | Setup, workflow, patterns for adding features, helper reference, testing, and troubleshooting |
+| [Frontend Components](docs/FRONTEND_COMPONENTS.md) | React component inventory, design system, API client, type system, and test coverage |
+| [Project Map](docs/PROJECT_MAP.md) | Flat source-file inventory with known risks and TODO candidates |
 
 ## Testing Workflows
 
@@ -97,6 +115,21 @@ cd client
 npm run test
 npm run test:coverage
 ```
+
+### Current Testing Status (2026-04-17)
+- Focused backend suites added during the maintenance pass are green:
+	- `python -m pytest tests/test_routes_cpms_pytest.py tests/test_routes_pages_pytest.py tests/test_routes_experience_pytest.py tests/test_routes_ev_charging_edges_pytest.py -q`
+	- Result: `23 passed`
+- Focused frontend suites are green:
+	- `npm --prefix client run test -- src/components/App.test.tsx src/utils/api.test.ts`
+	- Result: `2 files, 6 tests passed`
+- Broader backend suite status:
+	- `python -m pytest -q -ra`
+	- Result: `57 passed, 35 skipped, 1 xfailed`
+	- Skip-heavy areas are legacy low-fidelity placeholder tests and stress-only tests gated by `RUN_STRESS=1`.
+- Broader frontend suite status:
+	- `npm --prefix client run test`
+	- Result: `12 files, 17 tests passed`
 
 ### Autonomous full-suite runner
 ```powershell

@@ -51,4 +51,4 @@ if __name__ == "__main__":
         f"(exists: {os.path.exists(app.static_folder)})"
     )
     print(f"index.html present: {os.path.exists(static_index)}")
-    app.run(host=settings.flask_host, port=settings.flask_port, debug=settings.flask_debug)
+    app.run(host=settings.flask_host, port=settings.flask_port, debug=settings.flask_debug, threaded=True)

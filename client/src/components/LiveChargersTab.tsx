@@ -13,6 +13,10 @@ export default function LiveChargersTab() {
   const [selectedCp, setSelectedCp] = useState<string | null>(null);
   const [cpStatus, setCpStatus] = useState<ChargePointStatus | null>(null);
 
+  const resolveChargePointId = (cp: ChargePoint): string => {
+    return String(cp.charge_point_id ?? cp.id ?? "");
+  };
+
   const fetchChargePoints = async () => {
     setLoading(true);
     setError(null);
@@ -42,13 +46,22 @@ export default function LiveChargersTab() {
     }
   };
 
+  const refreshChargePointsAndSelection = async (cpId: string | null = selectedCp) => {
+    await fetchChargePoints();
+    if (cpId) {
+      await fetchCpStatus(cpId);
+    }
+  };
+
   useEffect(() => { fetchChargePoints(); }, []);
 
   useEffect(() => {
     if (!autoRefresh) return;
-    const interval = setInterval(fetchChargePoints, 10000);
+    const interval = setInterval(() => {
+      void refreshChargePointsAndSelection(selectedCp);
+    }, 10000);
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, selectedCp]);
 
   useEffect(() => {
     if (selectedCp) fetchCpStatus(selectedCp);
@@ -80,7 +93,13 @@ export default function LiveChargersTab() {
               />
               Auto-refresh (10s)
             </label>
-            <Button variant="secondary" style={styles.buttonSecondary} onClick={fetchChargePoints}>Refresh</Button>
+            <Button
+              variant="secondary"
+              style={styles.buttonSecondary}
+              onClick={() => { void refreshChargePointsAndSelection(selectedCp); }}
+            >
+              Refresh
+            </Button>
           </div>}
         />
 
@@ -94,21 +113,30 @@ export default function LiveChargersTab() {
 
         {!loading && chargePoints.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
-            {chargePoints.map(cp => (
+            {chargePoints.map(cp => {
+              const cpId = resolveChargePointId(cp);
+              return (
               <div
-                key={cp.charge_point_id || cp.id}
+                key={cpId}
                 style={{
-                  background: selectedCp === cp.charge_point_id ? "var(--surface-elevated)" : "var(--surface-panel)",
-                  border: `1px solid ${selectedCp === cp.charge_point_id ? "var(--accent-primary)" : "var(--line-soft)"}`,
+                  background: selectedCp === cpId ? "var(--surface-elevated)" : "var(--surface-panel)",
+                  border: `1px solid ${selectedCp === cpId ? "var(--accent-primary)" : "var(--line-soft)"}`,
                   borderRadius: 10,
                   padding: 16,
                   cursor: "pointer",
                   transition: "all 0.2s"
                 }}
-                onClick={() => setSelectedCp(cp.charge_point_id)}
+                onClick={() => {
+                  if (!cpId) return;
+                  if (selectedCp === cpId) {
+                    void fetchCpStatus(cpId);
+                    return;
+                  }
+                  setSelectedCp(cpId);
+                }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15 }}>{cp.charge_point_id}</div>
+                  <div style={{ fontWeight: 600, fontSize: 15 }}>{cpId}</div>
                   <StatusPill tone={cp.online ? "success" : "error"} label={cp.online ? "ONLINE" : "OFFLINE"} />
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
@@ -120,7 +148,8 @@ export default function LiveChargersTab() {
                   </div>
                 )}
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
 

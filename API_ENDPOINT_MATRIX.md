@@ -1,4 +1,9 @@
-# AppDev API Endpoint Matrix
+# AppDev API Endpoint Matrix (Historical Probe Snapshot)
+
+Status note (2026-04-17): this matrix is a point-in-time upstream probe from 2026-04-07, not the current Flask route truth.
+
+- Current in-repo route source of truth: `ROUTE_INVENTORY.md` (`Total routes: 108`).
+- Entries here may include services/endpoints no longer represented in current route modules.
 
 - Host: http://appdev.evbuddy.net
 - Generated: 2026-04-07T07:05:08.516335+00:00

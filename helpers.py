@@ -26,6 +26,7 @@ from config import (
     EVBUDDY_DEV_HOST,
     EVBUDDY_DEV_SERVICE_STATUS_PATHS,
     normalize_service_key,
+    get_host_for_port,
 )
 from src.infrastructure.http import BaseHttpClient
 
@@ -84,7 +85,8 @@ def ms_url(service_key, suffix=""):
     """Build URL for a microservice by key."""
     canonical_key = normalize_service_key(service_key)
     svc = EVBUDDY_DEV_SERVICES[canonical_key]
-    return f"{EVBUDDY_DEV_HOST}:{svc['port']}{svc['base']}{suffix}"
+    host = get_host_for_port(svc['port'])
+    return f"{host}:{svc['port']}{svc['base']}{suffix}"
 
 
 def service_status_url(service_key):
@@ -92,7 +94,8 @@ def service_status_url(service_key):
     canonical_key = normalize_service_key(service_key)
     svc = EVBUDDY_DEV_SERVICES[canonical_key]
     status_path = EVBUDDY_DEV_SERVICE_STATUS_PATHS.get(canonical_key, f"{svc['base']}/status")
-    return f"{EVBUDDY_DEV_HOST}:{svc['port']}{status_path}"
+    host = get_host_for_port(svc['port'])
+    return f"{host}:{svc['port']}{status_path}"
 
 
 def with_query_params(url, **params):

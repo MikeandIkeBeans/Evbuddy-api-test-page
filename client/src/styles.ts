@@ -9,7 +9,6 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: "100vh",
     color: "var(--text-primary)",
     position: "relative",
-    overflow: "hidden",
   },
   header: {
     display: "flex",

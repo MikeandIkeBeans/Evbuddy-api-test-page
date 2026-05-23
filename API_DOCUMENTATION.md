@@ -94,6 +94,19 @@ Most `/api/*` routes forward requests to upstream Spring Boot services on
 - `POST /api/messaging/threads`
 - `POST /api/messaging/threads/:thread_id/messages`
 
+### Dispatch Service Requests (9034)
+
+- `GET /api/v1/service-requests`
+- `GET /api/v1/service-requests/:id`
+- Upstream direct endpoints on `http://appdev.evbuddy.net:9034`:
+	- `GET /servicerequests`
+	- `POST /servicerequests`
+	- `GET /servicerequests/:id`
+	- `PUT /servicerequests/:id`
+	- `DELETE /servicerequests/:id`
+- Detailed behavior snapshot: `API_SERVICE_REQUESTS_9034.md`
+- OpenAPI contract: `API_SERVICE_REQUESTS_OPENAPI_9034.yaml`
+
 ### Charging and V2V
 
 - `POST /v1/qr/resolve`

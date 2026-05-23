@@ -24,40 +24,45 @@ def _env_int(name, default):
         return default
 
 
-# Canonical upstream host (Spring Boot microservices on dev.evbuddy.net)
+# Canonical upstream host (Spring Boot microservices on appdev.evbuddy.net)
 EVBUDDY_DEV_HOST = os.environ.get(
     "EVBUDDY_DEV_HOST",
-    os.environ.get("MICROSERVICE_HOST", "http://dev.evbuddy.net"),
+    os.environ.get("MICROSERVICE_HOST", "http://appdev.evbuddy.net"),
 )
+
+
+def get_host_for_port(port):
+    """
+    Get the host (including schema) for a given service port.
+    Standardized to appdev.evbuddy.net.
+    """
+    return EVBUDDY_DEV_HOST
+
 
 # Canonical per-service base URLs (derived from EVBUDDY_DEV_HOST)
 EVBUDDY_DEV_USERS_BASE = os.environ.get(
     "EVBUDDY_DEV_USERS_BASE",
-    os.environ.get("REAL_API_BASE", f"{EVBUDDY_DEV_HOST}:9000"),
+    os.environ.get("REAL_API_BASE", f"{get_host_for_port(9000)}:9000"),
 )
 EVBUDDY_DEV_HOST_SITES_BASE = os.environ.get(
     "EVBUDDY_DEV_HOST_SITES_BASE",
-    os.environ.get("REAL_HOSTSITES_API_BASE", f"{EVBUDDY_DEV_HOST}:9004"),
-)
-EVBUDDY_DEV_BUSINESS_BASE = os.environ.get(
-    "EVBUDDY_DEV_BUSINESS_BASE",
-    os.environ.get("REAL_BUSINESS_API_BASE", f"{EVBUDDY_DEV_HOST}:9005"),
+    os.environ.get("REAL_HOSTSITES_API_BASE", f"{get_host_for_port(9004)}:9004"),
 )
 EVBUDDY_DEV_CHARGERS_BASE = os.environ.get(
     "EVBUDDY_DEV_CHARGERS_BASE",
-    os.environ.get("REAL_CHARGERS_API_BASE", f"{EVBUDDY_DEV_HOST}:9017"),
+    os.environ.get("REAL_CHARGERS_API_BASE", f"{get_host_for_port(9017)}:9017"),
 )
 EVBUDDY_DEV_OCPP_BASE = os.environ.get(
     "EVBUDDY_DEV_OCPP_BASE",
-    os.environ.get("REAL_OCPP_API_BASE", f"{EVBUDDY_DEV_HOST}:9029"),
+    os.environ.get("REAL_OCPP_API_BASE", f"{get_host_for_port(9029)}:9029"),
 )
 EVBUDDY_DEV_HOST_ROOMS_BASE = os.environ.get(
     "EVBUDDY_DEV_HOST_ROOMS_BASE",
-    os.environ.get("REAL_HOSTROOM_API_BASE", f"{EVBUDDY_DEV_HOST}:9027"),
+    os.environ.get("REAL_HOSTROOM_API_BASE", f"{get_host_for_port(9027)}:9027"),
 )
 EVBUDDY_DEV_MESSAGING_BASE = os.environ.get(
     "EVBUDDY_DEV_MESSAGING_BASE",
-    os.environ.get("REAL_MESSAGING_API_BASE", f"{EVBUDDY_DEV_HOST}:9011"),
+    os.environ.get("REAL_MESSAGING_API_BASE", f"{get_host_for_port(9011)}:9011"),
 )
 
 # Local Flask proxy settings
@@ -78,18 +83,19 @@ EV_SESSIONS = {}
 # Dev host: appdev.evbuddy.net | Prod host: app.evbuddy.net
 #
 # Categories: Core, Host Ops, Charging, Messaging & Dispatch, Community
-# Total: 24 registered services, 30 health check endpoints
+# Total: 34 registered services, 34 health check endpoints
 
 EVBUDDY_DEV_SERVICES = {
     # --- Core Services ---
     "users":                {"port": 9000, "base": "/user",                    "category": "core"},
     "user_vehicles":        {"port": 9001, "base": "/user-vehicle/vehicles",   "category": "core"},
-    "user_payments":        {"port": 9002, "base": "/userpayments",            "category": "core",     "deployed": False},
+    "user_payments":        {"port": 9002, "base": "/payments",                "category": "core"},
     "user_subscriptions":   {"port": 9003, "base": "/user-subscriptions",      "category": "core"},
 
     # --- Host Ops Services ---
     "host_sites":           {"port": 9004, "base": "/host-sites",              "category": "host_ops"},
-    "access_invites":       {"port": 9005, "base": "",                         "category": "host_ops"},
+    "sites":                {"port": 9004, "base": "/sites",                   "category": "host_ops"},
+    "access_control":       {"port": 9005, "base": "/access-control",          "category": "host_ops"},
     "operating_hours":      {"port": 9008, "base": "/operating-hours",         "category": "host_ops"},
     "hostroom":             {"port": 9027, "base": "/hostrooms",               "category": "host_ops"},
 
@@ -101,15 +107,25 @@ EVBUDDY_DEV_SERVICES = {
     "services_catalog":     {"port": 9026, "base": "/services",                "category": "charging"},
     "provider_services":    {"port": 9026, "base": "/provider-services",       "category": "charging"},
     "ocpp":                 {"port": 9029, "base": "",                         "category": "charging"},
+    "pricing":              {"port": 9030, "base": "/pricing",                 "category": "charging"},
+    "booking":              {"port": 9031, "base": "/bookings",                "category": "charging"},
+    "session_billing":      {"port": 9032, "base": "/sessions",                "category": "charging"},
     "transactions":         {"port": 9032, "base": "/transactions",            "category": "charging"},
-    "pricing":              {"port": 9030, "base": "",                         "category": "charging",  "deployed": False},
-    "booking":              {"port": 9031, "base": "",                         "category": "charging",  "deployed": False},
+    "admin_api":            {"port": 9032, "base": "/admin",                   "category": "charging"},
+    "stripe":               {"port": 9033, "base": "/stripe",                  "category": "charging"},
+    "payouts":              {"port": 9033, "base": "/payouts",                 "category": "charging"},
+    "webhooks":             {"port": 9033, "base": "/webhooks",                "category": "charging"},
+    "promo_credit":         {"port": 9034, "base": "/promos",                  "category": "charging"},
+    "credits":              {"port": 9034, "base": "/credits",                 "category": "charging"},
 
     # --- Messaging & Dispatch Services ---
     "messaging":            {"port": 9011, "base": "",                         "category": "messaging"},
+    "notifications":        {"port": 9036, "base": "/notifications",           "category": "messaging"},
     "dispatch":             {"port": 9024, "base": "",                         "category": "dispatch",  "deployed": False},
+    "service_requests":     {"port": 9034, "base": "/servicerequests",          "category": "dispatch"},
 
     # --- Community Services ---
+    "ratings_reviews":      {"port": 9035, "base": "/reviews",                 "category": "community"},
     "service_reviews":      {"port": 9015, "base": "/service-reviews",         "category": "community"},
     "community_comments":   {"port": 9012, "base": "/communitycomments",       "category": "community"},
     "community_posts":      {"port": 9013, "base": "/communityposts",          "category": "community"},
@@ -122,13 +138,14 @@ EVBUDDY_DEV_SERVICE_STATUS_PATHS = {
     # Core
     "users":                "/user/status",
     "user_vehicles":        "/user-vehicle/status",
-    "user_payments":        "/userpayments/status",
+    "user_payments":        "/actuator/health",
     "user_subscriptions":   "/user-subscriptions/status",
 
     # Host Ops
     "host_sites":           "/host-sites/status",
-    "access_invites":       "/invites",
-    "operating_hours":      "/operating-hours/status",
+    "sites":                "/host-sites/status",
+    "access_control":       "/actuator/health",
+    "operating_hours":      "/actuator/health",
     "hostroom":             "/hostrooms/status",
 
     # Charging
@@ -139,13 +156,25 @@ EVBUDDY_DEV_SERVICE_STATUS_PATHS = {
     "services_catalog":     "/services",
     "provider_services":    "/provider-services/status",
     "ocpp":                 "/api/charge-points",
+    "pricing":              "/actuator/health",
+    "booking":              "/actuator/health",
+    "session_billing":      "/actuator/health",
     "transactions":         "/transactions/history/test",
+    "admin_api":            "/actuator/health",
+    "stripe":               "/actuator/health",
+    "payouts":              "/actuator/health",
+    "webhooks":             "/actuator/health",
+    "promo_credit":         "/actuator/health",
+    "credits":              "/actuator/health",
 
     # Messaging & Dispatch
     "messaging":            "/api-docs",
+    "notifications":        "/actuator/health",
     "dispatch":             "/assets",
+    "service_requests":     "/servicerequests",
 
     # Community
+    "ratings_reviews":      "/actuator/health",
     "service_reviews":      "/service-reviews/status",
     "community_comments":   "/communitycomments/status",
     "community_posts":      "/communityposts/status",
@@ -154,9 +183,17 @@ EVBUDDY_DEV_SERVICE_STATUS_PATHS = {
 
 # Legacy key aliases accepted at route level.
 EVBUDDY_DEV_SERVICE_ALIASES = {
-    "evbuddy_homepage": "access_invites",
-    "businesses": "access_invites",
     "feedback_reviews": "service_reviews",
+    "reviews": "ratings_reviews",
+    "payments": "user_payments",
+    "site_management": "sites",
+    "admin": "admin_api",
+    "booking_service": "booking",
+    "session_billing_service": "session_billing",
+    "promos": "promo_credit",
+    "credits_service": "credits",
+    "payouts_service": "payouts",
+    "stripe_webhooks": "webhooks",
     "preorders": "chargebox",
 }
 
@@ -173,7 +210,6 @@ MICROSERVICE_HOST = EVBUDDY_DEV_HOST
 
 EV_REAL_API_BASE = EVBUDDY_DEV_USERS_BASE
 EV_REAL_HOSTSITES_API_BASE = EVBUDDY_DEV_HOST_SITES_BASE
-EV_REAL_BUSINESS_API_BASE = EVBUDDY_DEV_BUSINESS_BASE
 EV_REAL_CHARGERS_API_BASE = EVBUDDY_DEV_CHARGERS_BASE
 EV_REAL_OCPP_API_BASE = EVBUDDY_DEV_OCPP_BASE
 EV_REAL_HOSTROOM_API_BASE = EVBUDDY_DEV_HOST_ROOMS_BASE

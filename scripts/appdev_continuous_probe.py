@@ -17,6 +17,7 @@ DEFAULT_TARGETS = [
     ("messaging_health", 9011, "/actuator/health"),
     ("chargers_status", 9017, "/chargers/status"),
     ("ocpp_charge_points", 9029, "/api/charge-points"),
+    ("service_requests_list", 9034, "/servicerequests"),
 ]
 
 

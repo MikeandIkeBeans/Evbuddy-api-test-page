@@ -2,9 +2,9 @@
 
 :root {
   color-scheme: dark;
-  --bg-primary: #002f27;
-  --bg-secondary: #001f1a;
-  --bg-tertiary: #00110d;
+  --bg-primary: #06120f;
+  --bg-secondary: #040d0b;
+  --bg-tertiary: #020806;
   --accent-primary: #44b5a1;
   --accent-secondary: #215f55;
   --text-primary: #ffffff;
@@ -76,9 +76,9 @@ body {
   font-family: "Instrument Sans", "SF Pro Text", "Avenir Next", sans-serif;
   color: var(--text-primary);
   background:
-    radial-gradient(circle at 15% 14%, rgba(68, 181, 161, 0.22), transparent 34%),
-    radial-gradient(circle at 84% 4%, rgba(15, 73, 64, 0.34), transparent 36%),
-    linear-gradient(165deg, #001a15 0%, #002a23 46%, #00110d 100%);
+    radial-gradient(circle at 15% 14%, rgba(68, 181, 161, 0.10), transparent 34%),
+    radial-gradient(circle at 84% 4%, rgba(15, 73, 64, 0.12), transparent 36%),
+    linear-gradient(165deg, #030a08 0%, #06120f 46%, #020806 100%);
   background-attachment: fixed;
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
@@ -102,10 +102,16 @@ body::after {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
   background-size: 32px 32px;
-  opacity: 0.18;
+  opacity: 0.08;
+  z-index: 1;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-shell {
@@ -249,43 +255,73 @@ body::after {
   outline-offset: 2px;
 }
 
-.dashboard-tabpanel {
+.dashboard-sections-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.dashboard-section {
+  scroll-margin-top: 140px;
   border: 1px solid var(--line-soft);
   border-radius: 18px;
   padding: 16px;
   background: rgba(4, 46, 39, 0.58);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  animation: tabPanelReveal 0.26s ease-out both;
+  animation: sectionReveal 0.4s ease-out both;
 }
 
-.dashboard-viewing-meta {
+.dashboard-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(68, 181, 161, 0.32);
+  background: linear-gradient(135deg, rgba(6, 54, 46, 0.72), rgba(3, 44, 37, 0.56));
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 25, 20, 0.28);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-section-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(68, 181, 161, 0.06), transparent 60%);
+  pointer-events: none;
+}
+
+.dashboard-section-header-icon {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  border-radius: 999px;
-  padding: 6px 12px;
-  border: 1px solid rgba(68, 181, 161, 0.42);
-  background: rgba(68, 181, 161, 0.1);
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(68, 181, 161, 0.16);
+  border: 1px solid rgba(68, 181, 161, 0.28);
+  color: var(--accent-primary);
+  flex-shrink: 0;
 }
 
-.dashboard-viewing-label {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+.dashboard-section-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.dashboard-viewing-value {
-  font-size: 12px;
   color: var(--text-primary);
-  font-weight: 700;
 }
 
-.dashboard-viewing-order {
+.dashboard-section-header-order {
+  margin-left: auto;
   font-size: 11px;
   color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 button,
@@ -390,14 +426,19 @@ table tbody tr:hover {
     text-align: center;
   }
 
-  .dashboard-tabpanel {
+  .dashboard-section {
     padding: 12px;
+    scroll-margin-top: 100px;
+  }
+
+  .dashboard-sections-wrap {
+    gap: 20px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dashboard-shell,
-  .dashboard-tabpanel,
+  .dashboard-section,
   .dashboard-tab-indicator,
   .dashboard-tab,
   button {
@@ -418,10 +459,10 @@ table tbody tr:hover {
   }
 }
 
-@keyframes tabPanelReveal {
+@keyframes sectionReveal {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
 
   to {

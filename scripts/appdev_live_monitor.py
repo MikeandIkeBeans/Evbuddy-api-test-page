@@ -14,6 +14,7 @@ TARGETS = [
     ("operating_health", "http://appdev.evbuddy.net:9008/actuator/health"),
     ("messaging_health", "http://appdev.evbuddy.net:9011/actuator/health"),
     ("chargers_status", "http://appdev.evbuddy.net:9017/chargers/status"),
+    ("service_requests_list", "http://appdev.evbuddy.net:9034/servicerequests"),
     ("ocpp_charge_points", "http://appdev.evbuddy.net:9029/api/charge-points"),
     ("ocpp_connectors", "http://appdev.evbuddy.net:9029/api/connectors"),
 ]

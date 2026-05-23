@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify
 
 import requests as http_requests
 
-from config import EVBUDDY_DEV_BUSINESS_BASE, EVBUDDY_DEV_HOST_SITES_BASE
+from config import EVBUDDY_DEV_HOST_SITES_BASE
 from helpers import get_json_body, proxy_json_request
 
 sites_bp = Blueprint("sites", __name__)
@@ -89,7 +89,7 @@ def create_site(business_id):
     data["business_id"] = business_id
     return proxy_json_request(
         "POST",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites",
         body=data,
         error_message="Failed to create site",
     )
@@ -104,7 +104,7 @@ def update_site(site_id):
 
     return proxy_json_request(
         "PUT",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites/{site_id}",
         body=data,
         error_message="Failed to update site",
         not_found="Site not found",
@@ -116,7 +116,7 @@ def delete_site(site_id):
     """Delete a site."""
     return proxy_json_request(
         "DELETE",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites/{site_id}",
         error_message="Failed to delete site",
         not_found="Site not found",
         empty_message="Site deleted",
@@ -128,7 +128,7 @@ def get_site_members(site_id):
     """Get all members of a host site."""
     return proxy_json_request(
         "GET",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/members",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites/{site_id}/members",
         error_message="Failed to fetch site members",
     )
 
@@ -142,7 +142,7 @@ def invite_site_member(site_id):
 
     return proxy_json_request(
         "POST",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/members/invite",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites/{site_id}/members/invite",
         body=data,
         error_message="Failed to invite member",
     )
@@ -157,7 +157,7 @@ def add_site_member(site_id, user_id):
 
     return proxy_json_request(
         "POST",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/members/{user_id}",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites/{site_id}/members/{user_id}",
         body=data,
         error_message="Failed to add member",
     )
@@ -168,7 +168,7 @@ def remove_site_member(site_id, user_id):
     """Remove a user from site membership."""
     return proxy_json_request(
         "DELETE",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/sites/{site_id}/members/{user_id}",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/sites/{site_id}/members/{user_id}",
         error_message="Failed to remove member",
         empty_message="Member removed",
     )
@@ -196,7 +196,7 @@ def api_preorder():
 
     return proxy_json_request(
         "POST",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/preorders",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/preorders",
         body=data,
         error_message="Failed to submit pre-order",
     )
@@ -211,7 +211,7 @@ def api_subscribe():
 
     return proxy_json_request(
         "POST",
-        f"{EVBUDDY_DEV_BUSINESS_BASE}/subscribers",
+        f"{EVBUDDY_DEV_HOST_SITES_BASE}/subscribers",
         body=data,
         error_message="Failed to subscribe",
     )

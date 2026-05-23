@@ -22,6 +22,8 @@ SERVICE_LANES = {
 
     # Host Ops
     "host_sites": "Host Ops",
+    "sites": "Host Ops",
+    "access_control": "Host Ops",
     "access_invites": "Host Ops",
     "operating_hours": "Availability",
     "hostroom": "Host Ops",
@@ -37,12 +39,21 @@ SERVICE_LANES = {
     "transactions": "Transactions",
     "pricing": "Pricing",
     "booking": "Booking",
+    "session_billing": "Transactions",
+    "stripe": "Transactions",
+    "payouts": "Transactions",
+    "webhooks": "Transactions",
+    "promo_credit": "Pricing",
+    "credits": "Pricing",
+    "admin_api": "Control",
 
     # Messaging & Dispatch
     "messaging": "Communications",
+    "notifications": "Communications",
     "dispatch": "Dispatch",
 
     # Community
+    "ratings_reviews": "Trust",
     "service_reviews": "Trust",
     "community_comments": "Community",
     "community_posts": "Community",

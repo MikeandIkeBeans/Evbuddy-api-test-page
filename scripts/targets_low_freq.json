@@ -3,6 +3,7 @@
   {"name": "vehicles_full", "url": "http://appdev.evbuddy.net:9001/user-vehicle/vehicles"},
   {"name": "host_sites_full", "url": "http://appdev.evbuddy.net:9004/host-sites"},
   {"name": "services_catalog", "url": "http://appdev.evbuddy.net:9026/services"},
+  {"name": "service_requests_list", "url": "http://appdev.evbuddy.net:9034/servicerequests"},
   {"name": "messaging_threads", "url": "http://appdev.evbuddy.net:9011/threads"},
   {"name": "messaging_templates", "url": "http://appdev.evbuddy.net:9011/templates"},
   {"name": "ocpp_charge_points", "url": "http://appdev.evbuddy.net:9029/api/charge-points"},

@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: EVBuddy Service Requests API (Observed)
+  version: 2026-04-25
+  description: >-
+    OpenAPI contract generated from live observed responses on appdev.
+    This spec models validated CRUD behavior for /servicerequests.
+servers:
+  - url: http://appdev.evbuddy.net:9034
+    description: Appdev Service Requests service
+paths:
+  /servicerequests:
+    get:
+      summary: List service requests
+      operationId: listServiceRequests
+      responses:
+        "200":
+          description: Service requests returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceRequest"
+    post:
+      summary: Create a service request
+      operationId: createServiceRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceRequestCreate"
+      responses:
+        "201":
+          description: Service request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRequest"
+        "400":
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /servicerequests/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric service request id
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      summary: Get service request by id
+      operationId: getServiceRequestById
+      responses:
+        "200":
+          description: Service request returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRequest"
+        "404":
+          description: Service request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Update service request
+      operationId: updateServiceRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceRequestUpdate"
+      responses:
+        "200":
+          description: Service request updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRequest"
+        "400":
+          description: Invalid update payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Service request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete service request
+      operationId: deleteServiceRequest
+      responses:
+        "204":
+          description: Service request deleted
+        "404":
+          description: Service request not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    ServiceRequest:
+      type: object
+      description: >-
+        Observed service request object includes approximately 43 fields in current appdev responses.
+        This schema models the confirmed core keys and allows additional properties.
+      x-observed-field-count: 43
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        status:
+          type: string
+          description: Current service request lifecycle state
+        currency:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        request_source:
+          type: string
+          nullable: true
+        request_type:
+          type: string
+          nullable: true
+        service_code:
+          type: string
+          nullable: true
+        service_name:
+          type: string
+          nullable: true
+        priority_code:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      additionalProperties: true
+    ServiceRequestCreate:
+      type: object
+      description: >-
+        Create payload shape is partially inferred from observed successful requests.
+        Additional properties are permitted to accommodate full upstream write model.
+      properties:
+        status:
+          type: string
+        notes:
+          type: string
+          nullable: true
+      additionalProperties: true
+    ServiceRequestUpdate:
+      type: object
+      description: >-
+        Observed PUT succeeds with partial updates containing status and notes.
+      properties:
+        status:
+          type: string
+        notes:
+          type: string
+          nullable: true
+      additionalProperties: true
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      additionalProperties: true

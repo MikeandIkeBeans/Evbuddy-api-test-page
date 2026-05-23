@@ -1,15 +1,17 @@
 # EVBuddy Bold Architecture Refactor Plan
 
+Status (2026-04-17): planning document only. The phases below describe a target architecture and are not a completion report.
+
 ## 1. Executive Direction
 
-This refactor shifts the codebase from a route-heavy Flask proxy into a layered, testable, domain-oriented platform with explicit boundaries:
+This refactor proposal outlines how to shift the codebase from a route-heavy Flask proxy into a layered, testable, domain-oriented platform with explicit boundaries:
 
 - API Layer: thin request/response adapters only
 - Application Layer: use-case orchestration and policy
 - Domain Layer: business rules, validation, domain models
 - Infrastructure Layer: upstream clients, persistence, caching, telemetry
 
-Primary outcomes:
+Target outcomes:
 
 - Reliability under partial upstream outages
 - Lower latency for high-traffic endpoints
